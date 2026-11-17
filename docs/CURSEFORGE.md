@@ -6,8 +6,8 @@
 - **Repository / in-game title:** Warband Vault Forever
 - **Summary:** Browse saved inventories, banks, equipment, and gold across your characters in one portrait-based interface.
 - **Logo:** `docs/images/curseforge-logo.png` (400 x 400 PNG).
-- **Main category:** Character, if offered by the creation form.
-- **Additional category:** Bags & Inventory, if offered.
+- **Main category:** Bags & Inventory.
+- **In-game AddOns category:** Inventory.
 - **Source URL:** https://github.com/Remgax/Warband-Vault-Forever
 - **Issues URL:** https://github.com/Remgax/Warband-Vault-Forever/issues
 - **License:** GNU General Public License version 3 (GPLv3)

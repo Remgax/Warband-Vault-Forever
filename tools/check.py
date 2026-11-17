@@ -31,7 +31,8 @@ def main():
     lua.execute((ROOT / "tests/core_events.lua").read_text(encoding="utf-8"), ROOT.as_posix())
     toc = (ADDON / "WarbandVaultForever.toc").read_text()
     assert "## Interface: 16001" in toc
-    assert "## Category-enUS: Character" in toc
+    assert "## Category: Inventory" in toc
+    assert "## Category-enUS: Inventory" in toc
     assert "## SavedVariables: WarbandVaultForeverDB" in toc
     assert "## X-License: GPL-3.0-only" in toc
     assert "GNU GENERAL PUBLIC LICENSE" in (ROOT / "LICENSE").read_text()

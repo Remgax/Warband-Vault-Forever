@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.2.0-alpha.3] - 2026-11-17
+
+- List the addon under Inventory in the in-game AddOns menu.
+- Set the CurseForge main category to Bags & Inventory.
+
 ## [0.2.0-alpha.2] - 2026-11-17
 
 - Native-style Create All, quantity arrows, editable batch count, and Create controls.

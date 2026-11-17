@@ -3,7 +3,7 @@
 Automated mocks exercise Lua behavior, not the actual game renderer. Record
 client build, date, and observed results when performing these checks.
 
-1. Restart Forever after first installation. Confirm the Character category,
+1. Restart Forever after first installation. Confirm the Inventory category,
    custom icon, title, version, and addon enabled status in the AddOns list.
 2. Log in and run `/wvf`. Check artwork, live portrait, readable labels,
    item icons, stack counts, tooltips, quality borders, and displayed wallet gold.
