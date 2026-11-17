@@ -135,14 +135,18 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: '3.14'
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: WarbandVaultForever
-          path: dist
+      - name: Fetch the published release ZIP and verify its checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          release_tag="$(python -c 'import sys; sys.path.insert(0,"tools"); from package import version; print("v"+version())')"
+          gh release download "$release_tag" --pattern 'WarbandVaultForever-*.zip*' --dir publish
+          (cd publish && sha256sum --check *.sha256)
       - name: Upload the installable ZIP and matching changelog
         env:
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
           CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
           CURSEFORGE_GAME_VERSION_ID: ${{ vars.CURSEFORGE_GAME_VERSION_ID }}
         run: |
-          python tools/curseforge_upload.py --file dist/*.zip
+          python tools/curseforge_upload.py --file publish/*.zip

@@ -91,7 +91,9 @@ variables → Actions**:
 The upload job stays disabled until both variables are configured. New versions
 published by CI then upload automatically. To upload the current version after
 initial setup, run **Actions → Validate, package, and release → Run workflow**
-and enable **Upload this tested package to CurseForge**. This explicit manual
+and enable **Upload this tested package to CurseForge**. The job downloads the
+published GitHub release ZIP and verifies its checksum, so both services receive
+the same archive even if newer documentation changes exist on main. This explicit manual
 upload may create a duplicate file if that version was already uploaded; use it
 only for the first setup or a missing upload.
 
