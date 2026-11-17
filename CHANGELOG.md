@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.2.0-alpha.4] - 2026-11-17
+
+- Show every recorded material holder and bag/bank location, including transfer restrictions.
+- Resolve item icons locally and preserve validated Forever icon paths during sync.
+- Use race icons for offline characters with class icons as fallback.
+- Make the minimap shortcut circular.
+
 ## [0.2.0-alpha.3] - 2026-11-17
 
 - List the addon under Inventory in the in-game AddOns menu.

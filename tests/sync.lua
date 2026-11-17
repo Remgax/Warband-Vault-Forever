@@ -105,3 +105,9 @@ assert(not a.Sync.active and a.db.characters["3:Player-1-ba"])
 a.Sync.Unlink(); assert(not a.db.characters["3:Player-1-ba"] and a.db.characters["3:Player-1-aa"])
 assert(not a.db.sync.key)
 print("PASS: account pairing, HMAC vectors, two-way bags/bank sync, packet loss, alt reconnect, input guards, merge ownership, offline cache and unlink")
+
+local iconRecord=character("Icons","abc")
+iconRecord.snapshots.bags.items[1].icon="Interface\\Icons\\INV_Misc_Herb_02"
+assert(a.SyncData.Clean(iconRecord).snapshots.bags.items[1].icon==iconRecord.snapshots.bags.items[1].icon)
+iconRecord.snapshots.bags.items[1].icon="Interface\\AddOns\\Bad\\image"
+assert(a.SyncData.Clean(iconRecord).snapshots.bags.items[1].icon==134400)

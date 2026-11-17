@@ -17,6 +17,12 @@ local result={character=self,profession={name="Alchemy"},recipe={id=123,name="Po
 local list=v.Shopping.Build(result)
 assert(list.items[1].buy==3,"Own bags, own bank and eligible alt bank reduce buying quantity")
 assert(list.items[1].providers[2].name=="Mage" and list.items[1].providers[2].source=="bank","Soulbound alt bags must not be labelled as a supplier")
+assert(#list.items[1].holdings==4,"Show own and alt bags and banks, including bound holdings")
+local remote=char("1:remote","Linked",{{id=1,count=40,bound=false}},{{id=1,count=60,bound=false}})
+remote.realm="Other"; remote.remoteAccount="linked"; v.db.characters.remote=remote
+local elsewhere=v.Shopping.Build(result)
+assert(#elsewhere.items[1].holdings==6 and elsewhere.items[1].buy==3,"Other realms are visible without reducing purchases")
+v.db.characters.remote=nil
 assert(list.total==1100 and list.priced==2 and list.buyLines==3,"Price subtotal uses only missing purchase quantities")
 local batch=v.Shopping.Build(result,2)
 assert(batch.count==2 and batch.items[1].required==20 and batch.items[1].buy==13 and batch.total==2900,"Shopping quantities and estimates scale with the selected batch")

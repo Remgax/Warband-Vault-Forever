@@ -69,6 +69,9 @@ local function Portrait(parent, size)
     local texture = backing:CreateTexture(nil, "ARTWORK")
     texture:SetPoint("TOPLEFT", 2, -2)
     texture:SetPoint("BOTTOMRIGHT", -2, 2)
+    backing.livePortrait = backing:CreateTexture(nil, "ARTWORK")
+    backing.livePortrait:SetAllPoints(texture)
+    backing.livePortrait:Hide()
     backing.portrait = texture
     return backing
 end
@@ -136,13 +139,23 @@ end
 local function DrawPortrait(frame, character)
     local texture = frame.portrait
     texture:SetTexCoord(0, 1, 0, 1)
-    if character.key == Vault.currentKey then
-        SetPortraitTexture(texture, "player")
+    if character.key == Vault.currentKey and not character.remoteAccount then
+        texture:Hide(); frame.livePortrait:Show()
+        SetPortraitTexture(frame.livePortrait, "player")
     else
-        -- Race/sex portraits remain available when an alt is offline. WoW cannot
-        -- retain an arbitrary rendered character texture in SavedVariables.
-        local sex = character.sex == 3 and "Female" or "Male"
-        texture:SetTexture("Interface\\CharacterFrame\\TemporaryPortrait-" .. sex .. (character.race or "Human"))
+        frame.livePortrait:Hide(); texture:Show()
+        -- Never reuse the player's rendered portrait as an offline portrait.
+        local sex = character.sex == 3 and "female" or "male"
+        local race = (character.race or ""):lower()
+        local atlas = "raceicon128-" .. race .. "-" .. sex
+        texture:SetTexture(nil)
+        if C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo(atlas) then
+            texture:SetAtlas(atlas)
+        else
+            texture:SetTexture("Interface\\GLUES\\CHARACTERCREATE\\UI-CHARACTERCREATE-CLASSES")
+            local coords = CLASS_ICON_TCOORDS and CLASS_ICON_TCOORDS[character.class]
+            if coords then texture:SetTexCoord(unpack(coords)) end
+        end
     end
 end
 
@@ -509,7 +522,11 @@ function UI.RenderGrid()
         button:ClearAllPoints()
         button:SetPoint("TOPLEFT", ((i - 1) % COLUMNS) * CELL, -math.floor((i - 1) / COLUMNS) * CELL)
         button.glow:Hide()
-        button.icon:SetTexture(result.item.icon or 134400)
+        local item=result.item
+        local localIcon=C_Item.GetItemIconByID and C_Item.GetItemIconByID(item.id)
+        if not localIcon and C_Item.GetItemInfo then localIcon=select(10,C_Item.GetItemInfo(item.id)) end
+        if result.character and result.character.remoteAccount and not localIcon and C_Item.RequestLoadItemDataByID then C_Item.RequestLoadItemDataByID(item.id) end
+        button.icon:SetTexture(localIcon or item.icon or 134400)
         button.count:SetText(result.item.count > 1 and result.item.count or "")
         local color = ITEM_QUALITY_COLORS[result.item.quality or 1]
         button.rim:SetVertexColor(color.r, color.g, color.b, 1)
@@ -629,6 +646,7 @@ function UI.Refresh()
         UI.name:SetTextColor(unpack(C.gold))
         UI.details:SetText("Choose a character or search by owner.")
         UI.characterGold:SetText("")
+        UI.portrait.livePortrait:Hide(); UI.portrait.portrait:Show()
         UI.portrait.portrait:SetTexCoord(0, 1, 0, 1)
         UI.portrait.portrait:SetTexture(ART .. "Icon")
     end
@@ -788,8 +806,14 @@ function UI.Minimap()
     Position()
     button:SetFrameStrata("MEDIUM")
     local texture = button:CreateTexture(nil, "ARTWORK")
-    texture:SetAllPoints()
+    texture:SetPoint("TOPLEFT",3,-3); texture:SetPoint("BOTTOMRIGHT",-3,3)
     texture:SetTexture(ART .. "Icon")
+    local mask=button:CreateMaskTexture(nil,"ARTWORK")
+    mask:SetAllPoints(texture); mask:SetTexture(ART .. "CircleMask")
+    texture:AddMaskTexture(mask)
+    local border=button:CreateTexture(nil,"OVERLAY")
+    border:SetAllPoints(); border:SetTexture(ART .. "SlotRing")
+    button.icon=texture; button.mask=mask; button.border=border
     button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
     button:RegisterForDrag("LeftButton")
     button:SetScript("OnDragStart", function(self)

@@ -20,10 +20,17 @@ function Shop.Build(result, count)
     local api=API()
     for _,r in ipairs(plan.requirements) do
         local item={id=r.id,name=r.id and Name(r.id,r.name) or r.name,required=r.required,
-            bags=r.bags or 0,bank=r.bank or 0,buy=r.accountMissing or r.required,providers={},unresolved=r.unresolved}
+            bags=r.bags or 0,bank=r.bank or 0,buy=r.accountMissing or r.required,providers={},holdings={},unresolved=r.unresolved}
         for _,owner in ipairs(r.owners) do
             local record=owner.record
             local own=record.character.key==result.character.key
+            for _,source in ipairs({"bags","bank","mail"}) do
+                if record[source]>0 then
+                    item.holdings[#item.holdings+1]={name=record.character.name,realm=record.character.realm,
+                        source=source,count=record[source],updated=record.updated[source],
+                        restricted=not own and (owner.otherRealm or owner.otherFaction or record.transferableByLocation[source]<record[source])}
+                end
+            end
             if owner.available>0 then
                 local remaining=owner.available
                 for _,source in ipairs({"bags","bank","mail"}) do
@@ -112,6 +119,11 @@ function Shop.Open(result, count)
     if list.uncertain then lines[#lines+1]="Some old records have unknown binding. Update those characters before buying." end
     for _,item in ipairs(list.items) do
         lines[#lines+1]=item.name..": "..item.required.." required / Bags "..item.bags.." / Bank "..item.bank
+        for _,p in ipairs(item.holdings) do
+            lines[#lines+1]="  Stored: "..p.name.." ("..p.realm..") / "..p.source.." / "..p.count..
+                (p.restricted and " / transfer restricted" or "")
+        end
+        if #item.holdings==0 then lines[#lines+1]="  Not found in recorded bags, banks or eligible mail." end
         for _,p in ipairs(item.providers) do
             lines[#lines+1]="  Collect: "..p.name.." / "..p.source.." / "..p.count.." ("..Vault.Model.Age(p.updated,time())..")"..
                 (p.uncertain and " / check binding" or "")

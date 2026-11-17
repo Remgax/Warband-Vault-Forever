@@ -69,6 +69,10 @@ end
 local function Num(v, max)
     if type(v)=="number" and v==v and v>=0 and v<=max and v==math.floor(v) then return v end
 end
+local function Icon(value)
+    if type(value)=="string" and #value<200 and value:lower():match("^interface[\\/]icons[\\/][%w_%-]+$") then return value end
+    return Num(value,100000000) or 134400
+end
 local function Stamp(v) return Num(v, time()+300) end
 local function Items(snapshot)
     assert(type(snapshot)=="table" and type(snapshot.items)=="table" and #snapshot.items<=5000)
@@ -79,7 +83,7 @@ local function Items(snapshot)
         assert(id>0 and count>0)
         local bound = item.bound; if type(bound)~="boolean" then bound=nil end
         result.items[i] = {id=id,count=count, name=Str(item.name), link="item:"..id,
-            icon=Num(item.icon,100000000) or 134400, quality=Num(item.quality,8) or 1,
+            icon=Icon(item.icon), quality=Num(item.quality,8) or 1,
             kind=Str(item.kind,""),bag=type(item.bag)=="number" and item.bag or 0,
             slot=Num(item.slot,100000) or i,bound=bound,
             expires=Stamp(item.expires),cod=item.cod==true or nil}
@@ -108,14 +112,14 @@ function Data.Clean(c)
         for id, recipe in pairs(skill.recipes or {}) do
             recipeCount=recipeCount+1; assert(recipeCount<=6000 and type(recipe)=="table")
             assert(type(id)=="number" or type(id)=="string")
-            local r={id=id,name=Str(recipe.name,"Recipe"),icon=Num(recipe.icon,100000000) or 134400,
+            local r={id=id,name=Str(recipe.name,"Recipe"),icon=Icon(recipe.icon),
                 quantity=Num(recipe.quantity,100000) or 1,outputID=Num(recipe.outputID,10000000),
                 incomplete=recipe.incomplete==true or nil,reagents={}}
             if r.outputID then r.link="item:"..r.outputID end
             for i,reagent in ipairs(recipe.reagents or {}) do
                 assert(i<=30 and type(reagent)=="table")
                 r.reagents[i]={id=Num(reagent.id,10000000),count=Num(reagent.count,100000) or 1,
-                    name=Str(reagent.name,"Reagent"),icon=Num(reagent.icon,100000000) or 134400}
+                    name=Str(reagent.name,"Reagent"),icon=Icon(reagent.icon)}
                 if not r.reagents[i].id then r.incomplete=true end
             end
             clean.recipes[id]=r
