@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [0.2.0-alpha.1] - 2026-11-17
+
+- Pair two accounts once, with a private code and approval on the first account.
+- Automatically reconnect from any character on the linked accounts, on the same realm and faction.
+- Sync recorded bags, banks, equipment, gold, professions, recipes, and optional mail.
+- Authenticated, throttled transfers with packet-loss recovery and data validation.
+- Keep offline records and original storage scan times; prevent remote records from overwriting local characters.
+- Add Account sync to Settings, with automatic updates, sharing controls, status, Sync now, and Unlink.
+- Include commit links and a comparison link in GitHub release notes.
+- Add Craft 1 for the current character, guarded by open profession, known recipe, material and game checks.
+- Build material shopping lists with character, storage location and purchase quantities.
+- Create Auctionator shopping lists for materials missing across eligible recorded supplies.
+- Estimate auction-house costs from cached Auctionator unit prices, with partial-price coverage and price age.
+- Keep Account sync above Settings and restore Settings when it closes.
+
 ## [0.1.0-alpha.2] - 2026-11-17
 
 - Saved professions, learned recipes, and material checks across bags, banks,

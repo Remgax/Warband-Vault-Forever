@@ -8,7 +8,8 @@ for _, name in ipairs({"SetBackdrop", "SetBackdropColor", "SetBackdropBorderColo
     "SetTextColor", "SetJustifyH", "SetFont", "SetFontObject", "SetAutoFocus", "SetMaxLetters",
     "SetHighlightTexture", "ClearFocus", "SetOwner", "SetHyperlink", "SetItemByID", "AddLine",
     "AddDoubleLine", "SetAllPoints", "SetBlendMode", "SetVertexColor", "SetColorTexture", "AddMaskTexture",
-    "SetWordWrap", "SetNumeric", "SetOrientation", "SetMinMaxValues", "SetValueStep", "SetObeyStepOnDrag", "SetThumbTexture"}) do methods[name] = noop end
+    "SetWordWrap", "SetNumeric", "SetOrientation", "SetMinMaxValues", "SetValueStep", "SetObeyStepOnDrag", "SetThumbTexture", "SetFocus", "HighlightText"}) do methods[name] = noop end
+function methods:GetStringHeight() return 500 end
 function methods:SetScript(event, fn) self.scripts[event] = fn end
 function methods:HookScript(event, fn) self.hooks[event] = fn end
 function methods:SetShown(value) if value then self:Show() else self:Hide() end end
@@ -88,6 +89,7 @@ C_Sound={PlaySoundWithOptions=function(params)
     sounds[#sounds+1]=params.soundKitID; soundVolumes[#soundVolumes+1]=params.volumeOverride
 end}
 assert(loadfile(root .. "/WarbandVaultForever/Crafting.lua"))("WarbandVaultForever", Vault)
+assert(loadfile(root .. "/WarbandVaultForever/Shopping.lua"))("WarbandVaultForever", Vault)
 assert(loadfile(root .. "/WarbandVaultForever/UI.lua"))("WarbandVaultForever", Vault)
 assert(loadfile(root .. "/WarbandVaultForever/CraftingUI.lua"))("WarbandVaultForever", Vault)
 local UI=Vault.UI
@@ -172,4 +174,12 @@ UI.Refresh()
 assert(UI.crafting:IsShown() and not UI.itemsScroll:IsShown() and #Vault.CraftingUI.results==1,
     "Crafting tab lists saved recipes separately from the inventory")
 assert(Vault.CraftingUI.status.text:find("Enough",1,true), "Crafting details show material sufficiency")
+Vault.Sync={config={enabled=false,auto=true},status="Not linked."}
+assert(loadfile(root.."/WarbandVaultForever/SyncUI.lua"))("WVF",Vault)
+if not UI.settingsFrame:IsShown() then UI.Settings() end
+Vault.SyncUI.Open()
+assert(Vault.SyncUI.frame:IsShown() and not UI.settingsFrame:IsShown(),"Account sync hides the parent Settings menu")
+assert(Vault.SyncUI.frame:GetFrameLevel()>UI.settingsFrame:GetFrameLevel(),"Sync controls stay above Settings")
+Vault.SyncUI.frame:Hide()
+assert(UI.settingsFrame:IsShown(),"Closing sync returns to Settings")
 print("PASS: satchel UI, close-button events, sound/effects settings, 2000-item scrolling, and bag-bar shortcut")

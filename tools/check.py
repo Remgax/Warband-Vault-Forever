@@ -16,12 +16,18 @@ from curseforge_upload import metadata, multipart, main as curseforge_main
 def main():
     lua = LuaRuntime(unpack_returned_tuples=True)
     compile_lua = lua.eval("function(code, name) local f,e=loadstring(code,name); assert(f,e); return true end")
-    for path in sorted(ADDON.glob("*.lua")):
+    for path in sorted(ADDON.rglob("*.lua")):
         compile_lua(path.read_text(encoding="utf-8"), path.name)
     vault, _ = lua.execute((ROOT / "tests/regression.lua").read_text(encoding="utf-8"), ROOT.as_posix())
     lua.execute((ROOT / "tests/ui_smoke.lua").read_text(encoding="utf-8"), ROOT.as_posix(), vault)
     profession_lua = LuaRuntime(unpack_returned_tuples=True)
     profession_lua.execute((ROOT / "tests/professions.lua").read_text(encoding="utf-8"), ROOT.as_posix())
+    sync_lua = LuaRuntime(unpack_returned_tuples=True)
+    sync_lua.execute((ROOT / "tests/sync.lua").read_text(encoding="utf-8"), ROOT.as_posix())
+    crypto_lua = LuaRuntime(unpack_returned_tuples=True)
+    crypto_lua.execute((ROOT / "tests/wow_crypto.lua").read_text(encoding="utf-8"), ROOT.as_posix())
+    shopping_lua = LuaRuntime(unpack_returned_tuples=True)
+    shopping_lua.execute((ROOT / "tests/shopping.lua").read_text(encoding="utf-8"), ROOT.as_posix())
     lua.execute((ROOT / "tests/core_events.lua").read_text(encoding="utf-8"), ROOT.as_posix())
     toc = (ADDON / "WarbandVaultForever.toc").read_text()
     assert "## Interface: 16001" in toc

@@ -3,7 +3,7 @@
 local addonName, Vault = ...
 local frame = CreateFrame("Frame")
 local pending, pendingItems = false, false
-Vault.version = "0.1.0-alpha.2"
+Vault.version = "0.2.0-alpha.1"
 
 local function Print(message)
     DEFAULT_CHAT_FRAME:AddMessage("|cffffd36bWarband Vault:|r " .. message)
@@ -36,6 +36,8 @@ local function Slash(message)
         Vault.UI.ActionBar()
     elseif message == "settings" then
         Vault.UI.Settings()
+    elseif message == "sync" then
+        Vault.SyncUI.Open()
     elseif message == "crafting" then
         if not Vault.UI.frame or not Vault.UI.frame:IsShown() then Vault.UI.Toggle() end
         Vault.UI.source = "crafting"; Vault.UI.Refresh()
@@ -63,6 +65,7 @@ local function Initialize()
     WarbandVaultForever_Toggle = Vault.UI.Toggle
     Vault.UI.Minimap()
     Vault.UI.ActionBar()
+    if Vault.Sync then Vault.Sync.Initialize() end
     Print("Type /wvf to open.")
 end
 
@@ -73,6 +76,7 @@ frame:SetScript("OnEvent", function(_, event, ...)
         return
     end
     if not Vault.db then return end
+    if event == "CHAT_MSG_ADDON" then Vault.Sync.Receive(...); return end
     if event == "BANKFRAME_OPENED" then
         Vault.Scanner.bankOpen = true
         Queue()
@@ -125,6 +129,6 @@ for _, event in ipairs({"ADDON_LOADED", "PLAYER_LOGIN", "PLAYER_ENTERING_WORLD",
     "ZONE_CHANGED_NEW_AREA", "BANKFRAME_OPENED", "BANKFRAME_CLOSED", "PLAYERBANKSLOTS_CHANGED",
     "MAIL_SHOW", "MAIL_CLOSED", "MAIL_INBOX_UPDATE", "ITEM_DATA_LOAD_RESULT", "PLAYER_REGEN_ENABLED",
     "TRADE_SKILL_SHOW", "TRADE_SKILL_CLOSE", "TRADE_SKILL_UPDATE", "TRADE_SKILL_LIST_UPDATE",
-    "TRADE_SKILL_DATA_SOURCE_CHANGED", "NEW_RECIPE_LEARNED", "SKILL_LINES_CHANGED", "CRAFT_SHOW", "CRAFT_CLOSE", "CRAFT_UPDATE"}) do
+    "TRADE_SKILL_DATA_SOURCE_CHANGED", "NEW_RECIPE_LEARNED", "SKILL_LINES_CHANGED", "CRAFT_SHOW", "CRAFT_CLOSE", "CRAFT_UPDATE", "CHAT_MSG_ADDON"}) do
     pcall(frame.RegisterEvent, frame, event)
 end

@@ -151,3 +151,37 @@ function P.Scan()
     if P.craft then Legacy(character, true)
     elseif not Modern(character) then Legacy(character, false) end
 end
+
+function P.Craft(result)
+    if result.character.key~=Vault.currentKey then return false,"Log into "..result.character.name.." to craft this recipe." end
+    if InCombatLockdown and InCombatLockdown() then return false,"Leave combat before crafting." end
+    if not P.open or Foreign() then return false,"Open your "..result.profession.name.." profession window first." end
+    Vault.Scanner.Refresh()
+    local plan=Vault.Crafting.Plan(Vault.Crafting.Inventory(Vault.db,time()),result.character,result.recipe)
+    if plan.incomplete then return false,"Finish loading this recipe in the profession window." end
+    if plan.bags<1 and not plan.noReagents then return false,"Collect the materials shown in the shopping list." end
+    local api=C_TradeSkillUI
+    local base=api and Read(api.GetBaseProfessionInfo)
+    if not P.craft and base and base.professionName==result.profession.name and type(result.recipe.id)=="number" and api.CraftRecipe then
+        local recipe=Read(api.GetRecipeInfo,result.recipe.id)
+        if not recipe or recipe.learned~=true then return false,"This recipe is not available in the open profession." end
+        local available=Read(api.GetCraftableCount,result.recipe.id)
+        if available and available<1 then return false,"The game reports this recipe cannot be crafted yet. Check tools and cooldowns." end
+        local ok=pcall(api.CraftRecipe,result.recipe.id,1)
+        return ok,ok and "Craft requested. Check the profession window for tools or cooldown requirements." or "WoW could not start this craft. Check the profession window."
+    end
+    local name=Read(P.craft and GetCraftDisplaySkillLine or GetTradeSkillLine)
+    if name~=result.profession.name then return false,"Open your "..result.profession.name.." profession window first." end
+    for i=1,Read(P.craft and GetNumCrafts or GetNumTradeSkills) or 0 do
+        local recipeName,subName,kind=Read(P.craft and GetCraftInfo or GetTradeSkillInfo,i)
+        local link=Read(P.craft and GetCraftItemLink or GetTradeSkillRecipeLink,i)
+        local id=link and tonumber(link:match("enchant:(%d+)") or link:match("spell:(%d+)"))
+        if recipeName and (id==result.recipe.id or type(result.recipe.id)=="string" and recipeName..(P.craft and subName or "" )==result.recipe.id) then
+            local fn=P.craft and DoCraft or DoTradeSkill
+            if type(fn)~="function" then break end
+            local ok=pcall(fn,i,1)
+            return ok,ok and "Craft requested. Complete any target selection in the profession window." or "WoW could not start the craft."
+        end
+    end
+    return false,"Find the recipe in your profession window, then try again."
+end

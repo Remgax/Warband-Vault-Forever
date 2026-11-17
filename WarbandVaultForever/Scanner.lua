@@ -29,6 +29,7 @@ function Scanner.Identity()
         faction = UnitFactionGroup("player"), zone = GetRealZoneText(),
         money = GetMoney(), lastSeen = time(),
     })
+    character.remoteAccount = nil
     return character
 end
 

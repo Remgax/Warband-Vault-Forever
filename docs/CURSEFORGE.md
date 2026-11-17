@@ -33,6 +33,7 @@ Warcraft: Forever. Search for an item to see who owns it without switching chara
 - A short opening animation, item hover glow, and WoW's backpack-opening sound.
 - Separate sound and effects controls, a movable window, and adjustable scale.
 - Shortcuts beside the action-bar bags and on the minimap, plus an optional key binding.
+- Account-level pairing for two accounts, with automatic sync of saved characters on the same realm and faction.
 
 ### Getting started
 
@@ -58,6 +59,7 @@ tracking are not included in the first alpha.
 
 - `/wvf`: open or close the vault.
 - `/wvf scan`: save accessible items.
+- `/wvf sync`: open account pairing and sync settings.
 - `/wvf minimap`: show or hide the minimap button.
 - `/wvf actionbar`: show or hide the button beside the bags.
 - `/wvf sound`: turn the opening sound on or off.
@@ -68,6 +70,26 @@ tracking are not included in the first alpha.
 This is an early alpha. Please report problems through GitHub Issues with your
 client build, reproduction steps, and any Lua error. Never attach your entire
 WTF folder or account SavedVariables to a public report.
+
+### Account sync
+
+Install the same version on both accounts and log into both on the same realm
+and faction. Open Settings → Account sync on the first account and create a
+code. Copy it privately into the other account and choose Pair account. Approve
+the request on the first account. Pairing applies to all characters on both
+accounts; switching alts needs no new pairing.
+
+Saved bags, banks, equipment, and gold sync both ways, with optional professions
+and mailbox sharing. Offline records remain available. Visit each owner's bank
+to update its contents. Sync is authenticated, not encrypted, and uses no cloud
+service or WoW password. One other account can be linked at a time. Transfers
+and alt switching pass simulations; live two-account transfer testing is pending.
+
+Use `docs/curseforge-description.html` for the complete formatted listing.
+The formatted file also describes Craft 1, material collection locations,
+Auctionator purchase lists and estimates from its cached unit prices. The live
+listing was updated for account sync; this later crafting/price text still needs
+to be pasted after Computer Use was stopped by the user.
 
 ## Publishing and automation
 

@@ -53,3 +53,31 @@ Live multi-character material transfers and bank visits remain untested.
 Initial installation target: Forever `1.60.1.70938`, Interface `16001`.
 Multi-character bank/mail behavior remains unverified until steps 5-10 are
 performed in the live client. Record the actual results, not assumptions.
+
+## Account sync
+
+Automated `tests/sync.lua` runs two isolated addon environments and a message
+transport. It verifies approved account pairing, bidirectional bags and banks,
+HMAC known-answer vectors, packet loss/retry, alt reconnect with persistent
+account trust, malformed data rejection, local record ownership, newer bank
+preservation, offline caching, and local unlink cleanup.
+
+For the live test, install the same version on two accounts, enter the same
+realm/faction, and pair through Settings. Approve on the creating account. Check
+inventories and gold in both directions, update each bank, then switch alts and
+confirm automatic reconnection. Test paused sync, manual sync, sharing controls,
+offline records, reloads, and unlink on both ends. This live two-account transfer
+has not yet been verified. Do not describe simulation success as a live test.
+
+Observed 2026-11-17 in Forever 1.60.1.70938: Account sync opens from `/wvf sync`,
+pairing-code generation succeeds, automatic-sync checkbox changes, and Unlink
+clears the temporary code without removing the current character. The SHA
+adapter supplies rotate helpers missing from WoW's bit API, covered by known
+SHA256 and HMAC vectors in `tests/wow_crypto.lua`.
+
+`tests/shopping.lua` verifies exact AH purchase quantities after local/alt bank
+deductions, soulbound storage locations, partial cached-price totals, unique
+Auctionator list names, and craft guards for missing materials, foreign windows,
+closed professions and offline owners. UI smoke checks verify the Settings/sync
+stacking fix. Live crafting and Auctionator list creation remain unverified:
+the user stopped Computer Use with Escape before those new controls were tested.

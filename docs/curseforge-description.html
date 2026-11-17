@@ -41,10 +41,13 @@
         <li>Character search with class, profession, realm, faction, and level filters.</li>
         <li>Saved professions and learned recipes, with material counts from bags and banks.</li>
         <li>Missing-material checks show which alts hold supplies and where they are stored.</li>
+        <li>Craft 1 from your current character's open profession, or build a materials list showing what to collect.</li>
+        <li>Auctionator shopping lists for remaining auction-house purchases, with rough costs from cached unit prices and clear price coverage.</li>
         <li>An open leather satchel with stitched edges, brass fittings, and item hover glow.</li>
         <li>A short opening animation and WoW's backpack-opening sound, with separate controls to turn them off.</li>
         <li>A separate Settings menu with sliders for window scale, opening-sound volume, and effects.</li>
         <li>A vault button beside the action-bar bags and a draggable minimap shortcut.</li>
+        <li>Optional account-level sync: pair two accounts once and share their recorded characters, inventories, banks, and gold.</li>
       </ul>
       <h2>Getting started</h2>
       <ol>
@@ -62,11 +65,33 @@
       location was recorded. Characters you have not logged into with the addon enabled will not appear yet.</p>
       <p>Your current character uses their live portrait. Offline characters use race and gender portraits.
       Gold totals include character wallets; mailbox gold is displayed separately.</p>
+      <h2>Crafting and auction-house shopping</h2>
+      <p>In Crafting, select a recipe and choose <strong>Craft 1</strong>. Open that character's profession first.
+      If materials are missing from bags, a collection list shows which character holds supplies and in which storage.
+      Remaining purchases become an Auctionator shopping list when its supported API is available. Use Auctionator at
+      an auctioneer to buy them. Cached price estimates exclude unknown prices and show when the total is partial.</p>
+      <h2>Link another account</h2>
+      <ol>
+        <li>Install this version on both accounts and log into both on the same realm and faction.</li>
+        <li>On the first account, open <strong>Settings → Account sync → Create / show code</strong>.</li>
+        <li>Copy the code privately to the other account. Paste it into Account sync and click <strong>Pair account</strong>.</li>
+        <li>On the first account, choose <strong>Approve account</strong>.</li>
+      </ol>
+      <p>Pairing applies to the whole account. Switching characters needs no new pairing. Both accounts exchange their
+      own saved characters while online; offline records remain available with their original saved times. Bank
+      contents update when their owner visits a banker. Large transfers may take time.</p>
+      <p>Sync Settings includes automatic updates, Sync now, profession and mailbox sharing, and Unlink.
+      Unlink removes the pairing and imported records on that account. Already received records remain when a sharing
+      option is turned off. One other account can be paired at a time.</p>
+      <p>Keep the pairing code private. Sync uses authenticated WoW addon messages and does not use your WoW password
+      or a cloud service. Messages are not encrypted. Cross-realm and cross-faction discovery are not supported.
+      Two-account transfers and alt switching pass simulated tests; live two-account transfer testing is still pending.</p>
       <h2>Commands</h2>
       <ul>
         <li><strong>/wvf</strong>: open or close the vault.</li>
         <li><strong>/wvf scan</strong>: save accessible items.</li>
         <li><strong>/wvf settings</strong>: open settings.</li>
+        <li><strong>/wvf sync</strong>: open account pairing and sync settings.</li>
         <li><strong>/wvf crafting</strong>: browse saved recipes and material counts.</li>
         <li><strong>/wvf minimap</strong>: show or hide the minimap shortcut.</li>
         <li><strong>/wvf actionbar</strong>: show or hide the button beside the bags.</li>
@@ -75,8 +100,7 @@
         <li><strong>/wvf resetui</strong>: reset the window's position and scale.</li>
       </ul>
       <h2>Early alpha</h2>
-      <p>This first version focuses on character inventories. Shared account banks, guild banks, auctions, currencies,
-      and synchronization between computers are not included.</p>
+      <p>Shared account banks, guild banks, auctions, and currencies are not tracked.</p>
       <p>Found a problem or have a suggestion? Visit our
       <a href="https://github.com/Remgax/Warband-Vault-Forever/issues">GitHub issue tracker</a>.</p>
     </article>

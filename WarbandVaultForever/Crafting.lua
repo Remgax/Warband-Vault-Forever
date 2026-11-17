@@ -39,12 +39,15 @@ function Crafting.Inventory(db, now, includeMail)
                     index[item.id] = index[item.id] or {}
                     local owners = index[item.id]
                     local owner = owners[character.key] or {character = character, bags = 0, bank = 0, mail = 0,
-                        transferable = 0, bound = 0, unknown = 0, updated = {}}
+                        transferable = 0, transferableByLocation = {bags=0,bank=0,mail=0}, bound = 0, unknown = 0, updated = {}}
                     owners[character.key] = owner
                     owner[location] = owner[location] + item.count
                     owner.updated[location] = snapshot.updated
                     if item.bound then owner.bound = owner.bound + item.count
-                    else owner.transferable = owner.transferable + item.count end
+                    else
+                        owner.transferable = owner.transferable + item.count
+                        owner.transferableByLocation[location] = owner.transferableByLocation[location] + item.count
+                    end
                     if item.bound == nil and location ~= "mail" then owner.unknown = owner.unknown + item.count end
                 end
             end

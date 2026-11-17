@@ -603,7 +603,7 @@ function UI.Refresh()
         end
         button.character = character
         button:SetPoint("TOPLEFT", 0, -(i - 1) * 88)
-        button.name:SetText(character.name .. (character.key == Vault.currentKey and " *" or ""))
+        button.name:SetText(character.name .. (character.key == Vault.currentKey and " *" or "") .. (character.remoteAccount and " +" or ""))
         button.name:SetTextColor(unpack(ClassColor(character)))
         button.meta:SetText(character.level .. " " .. (character.className or character.class) .. "\n" .. character.realm)
         button.money:SetText(Model.Money(character.money))
@@ -621,7 +621,7 @@ function UI.Refresh()
         UI.name:SetText(character.name)
         UI.name:SetTextColor(unpack(ClassColor(character)))
         UI.details:SetText(character.level .. " " .. character.raceName .. " " .. character.className ..
-            " / " .. character.realm .. " / " .. character.faction)
+            " / " .. character.realm .. " / " .. character.faction .. (character.remoteAccount and " / Linked account" or ""))
         UI.characterGold:SetText(Model.Money(character.money))
         DrawPortrait(UI.portrait, character)
     else
@@ -668,7 +668,7 @@ end
 
 function UI.Settings()
     if not UI.settingsFrame then
-        local panel = Panel(UIParent, 435, 485, nil, "WarbandVaultForeverSettings")
+        local panel = Panel(UIParent, 435, 525, nil, "WarbandVaultForeverSettings")
         UI.settingsFrame = panel
         panel:SetPoint("CENTER"); panel:SetFrameStrata("DIALOG"); panel:SetClampedToScreen(true)
         table.insert(UISpecialFrames, "WarbandVaultForeverSettings")
@@ -722,6 +722,7 @@ function UI.Settings()
             Text(panel, "This client uses WoW's sound-effects volume.", 10, C.muted, 390):SetPoint("TOPLEFT", 30, -294)
         end
         Text(panel, "Set sound or effects to 0% to turn them off.", 11, C.muted, 385):SetPoint("TOPLEFT", 25, -387)
+        Button(panel, "Account sync", 150, 30, function() Vault.SyncUI.Open() end):SetPoint("TOPLEFT", 25, -414)
         Button(panel, "Reset window", 124, 30, function()
             Vault.db.settings.position = nil; Vault.db.settings.scale = 1
             if UI.frame then UI.ApplyPosition() end
