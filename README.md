@@ -24,7 +24,7 @@ Browse your characters' saved bags, banks, equipment, mail, and gold in
   banks and show which alts hold missing supplies.
 - A separate Settings menu has sliders for scale, sound volume, and effects.
 - Pair another account once and sync its recorded characters from whichever alt is online.
-- Craft one item from the current character's open profession, or build a material list showing who holds supplies and where.
+- Create a selected batch or all available crafts from the current character's open profession, or build a material list showing who holds supplies and where.
 - Create Auctionator shopping lists for remaining purchase quantities and view rough costs from its cached prices.
 
 ## Install
@@ -94,16 +94,18 @@ mail, COD attachments, and supplies on other realms/factions do not count as
 transferable materials. Tools, cooldowns, and optional reagent choices still
 need checking in the profession window.
 
-In Crafting, select a recipe and choose **Craft 1**. Open the owner's profession
-window first. The addon submits one craft through WoW's API when the current
+In Crafting, select a recipe, enter a quantity and choose **Create**, or choose
+**Create All** for the currently available count. Open the owner's profession
+window first. Quantities count crafts, which may each produce multiple items.
+The addon submits the requested batch through WoW's API when the current
 character has the required materials; the game checks tools, cooldowns and any
 target selection. If materials are missing from bags, the button opens a list
 showing supplies to collect from banks, mail and eligible alts. When purchases
 remain and Auctionator is available, it creates a new shopping list there.
 
-**Materials** opens the collection and purchase plan. **AH shopping list** creates
-a fresh Auctionator list containing only the quantities missing across recorded
-usable supplies. Visit an auctioneer and use Auctionator's Shopping tab to buy.
+**Materials** opens the collection and purchase plan for the selected quantity.
+Its **Create Auctionator list** button creates a fresh list containing only the
+quantities missing across recorded usable supplies. Visit an auctioneer and use Auctionator's Shopping tab to buy.
 No auction purchase is submitted by this addon. Cost estimates use cached unit
 prices; unpriced materials are excluded from the labelled subtotal. Price age
 and coverage are shown when available. Update old character records before buying.

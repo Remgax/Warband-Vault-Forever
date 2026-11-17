@@ -12,10 +12,11 @@ local function Name(id,fallback)
     local name=C_Item and Read(C_Item.GetItemInfo,id)
     return name or fallback or ("Item "..id)
 end
-function Shop.Build(result)
-    local plan=Vault.Crafting.Plan(Vault.Crafting.Inventory(Vault.db,time(),Vault.db.settings.includeMail~=false),result.character,result.recipe)
+function Shop.Build(result, count)
+    count=math.max(1,math.min(999,math.floor(tonumber(count) or 1)))
+    local plan=Vault.Crafting.Plan(Vault.Crafting.Inventory(Vault.db,time(),Vault.db.settings.includeMail~=false),result.character,Vault.Crafting.ScaleRecipe(result.recipe,count))
     local list={name=result.recipe.name,character=result.character.name,items={},incomplete=plan.incomplete,uncertain=plan.uncertain,
-        total=0,priced=0,buyLines=0,oldestAge=0}
+        count=count,total=0,priced=0,buyLines=0,oldestAge=0}
     local api=API()
     for _,r in ipairs(plan.requirements) do
         local item={id=r.id,name=r.id and Name(r.id,r.name) or r.name,required=r.required,
@@ -47,7 +48,13 @@ function Shop.Build(result)
     end
     return list
 end
-function Shop.Estimate(list)
+function Shop.Estimate(list, compact)
+    if compact then
+        if list.buyLines==0 then return "No purchases needed." end
+        if list.priced==0 then return "AH estimate: no cached prices." end
+        return (list.priced<list.buyLines and "AH subtotal: " or "AH estimate: ")..Vault.Model.Money(list.total)..
+            " / "..list.priced.."/"..list.buyLines.." prices"..(list.oldestAge>0 and " / up to "..list.oldestAge.."d old" or "")
+    end
     if list.buyLines==0 then return "No auction-house purchases needed from the saved records." end
     if list.priced==0 then return "No Auctionator prices cached for these materials." end
     return (list.priced<list.buyLines and "Known-price subtotal: " or "Rough AH cost: ")..Vault.Model.Money(list.total)..
@@ -79,7 +86,7 @@ function Shop.Export(list)
     return ok,ok and ("Created Auctionator list: "..name..". Open the AH and use Shopping to buy the materials.") or
         "Auctionator could not create the list. Check that the addon has finished loading."
 end
-function Shop.Open(result)
+function Shop.Open(result, count)
     local W=Vault.UI.widgets
     if not Shop.frame then
         local panel=W.Panel(UIParent,630,550,nil,"WarbandVaultForeverShopping")
@@ -93,14 +100,14 @@ function Shop.Open(result)
         Shop.child=child; Shop.scroll=scroll
         Shop.message=W.Text(panel,"",11,W.colors.muted,580); Shop.message:SetPoint("TOPLEFT",22,-432)
         W.Button(panel,"Create Auctionator list",207,30,function()
-            local list=Shop.Build(Shop.result); local _,message=Shop.Export(list); Shop.message:SetText(message)
+            local list=Shop.Build(Shop.result,Shop.count); local _,message=Shop.Export(list); Shop.message:SetText(message)
         end):SetPoint("BOTTOMLEFT",22,22)
-        W.Button(panel,"Refresh",100,30,function() Shop.Open(Shop.result) end):SetPoint("BOTTOMLEFT",241,22)
+        W.Button(panel,"Refresh",100,30,function() Shop.Open(Shop.result,Shop.count) end):SetPoint("BOTTOMLEFT",241,22)
         W.Button(panel,"Done",100,30,function() panel:Hide() end):SetPoint("BOTTOMRIGHT",-22,22)
     end
-    Shop.result=result
-    local list=Shop.Build(result); Vault.db.shoppingList=list
-    local lines={list.name.." / "..list.character.." / one craft", "",Shop.Estimate(list),""}
+    Shop.result=result; Shop.count=count or 1
+    local list=Shop.Build(result,Shop.count); Vault.db.shoppingList=list
+    local lines={list.name.." / "..list.character.." / "..list.count.." crafts", "",Shop.Estimate(list),""}
     if list.incomplete then lines[#lines+1]="Recipe details are incomplete. Open the profession first." end
     if list.uncertain then lines[#lines+1]="Some old records have unknown binding. Update those characters before buying." end
     for _,item in ipairs(list.items) do

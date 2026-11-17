@@ -152,12 +152,34 @@ function P.Scan()
     elseif not Modern(character) then Legacy(character, false) end
 end
 
-function P.Craft(result)
+function P.Available(result)
+    if not result or result.character.key~=Vault.currentKey or not P.open or Foreign() then return 0 end
+    local plan=Vault.Crafting.Plan(Vault.Crafting.Inventory(Vault.db,time()),result.character,result.recipe)
+    if plan.incomplete then return 0 end
+    local maximum=plan.noReagents and 1 or plan.bags
+    local api=C_TradeSkillUI
+    local base=api and Read(api.GetBaseProfessionInfo)
+    if not P.craft and base and base.professionName==result.profession.name and type(result.recipe.id)=="number" and api.CraftRecipe then
+        local info=Read(api.GetRecipeInfo,result.recipe.id)
+        if not info or info.learned~=true then return 0 end
+        local available=Read(api.GetCraftableCount,result.recipe.id)
+        if type(available)=="number" then maximum=plan.noReagents and available or math.min(maximum,available) end
+    else
+        local name=Read(P.craft and GetCraftDisplaySkillLine or GetTradeSkillLine)
+        if name~=result.profession.name then return 0 end
+        if P.craft then maximum=math.min(maximum,1) end
+    end
+    return math.max(0,math.min(999,math.floor(maximum)))
+end
+
+function P.Craft(result, count)
+    count=count or 1
+    if type(count)~="number" or count~=math.floor(count) or count<1 or count>999 then return false,"Choose between 1 and 999 crafts." end
     if result.character.key~=Vault.currentKey then return false,"Log into "..result.character.name.." to craft this recipe." end
     if InCombatLockdown and InCombatLockdown() then return false,"Leave combat before crafting." end
     if not P.open or Foreign() then return false,"Open your "..result.profession.name.." profession window first." end
     Vault.Scanner.Refresh()
-    local plan=Vault.Crafting.Plan(Vault.Crafting.Inventory(Vault.db,time()),result.character,result.recipe)
+    local plan=Vault.Crafting.Plan(Vault.Crafting.Inventory(Vault.db,time()),result.character,Vault.Crafting.ScaleRecipe(result.recipe,count))
     if plan.incomplete then return false,"Finish loading this recipe in the profession window." end
     if plan.bags<1 and not plan.noReagents then return false,"Collect the materials shown in the shopping list." end
     local api=C_TradeSkillUI
@@ -166,8 +188,8 @@ function P.Craft(result)
         local recipe=Read(api.GetRecipeInfo,result.recipe.id)
         if not recipe or recipe.learned~=true then return false,"This recipe is not available in the open profession." end
         local available=Read(api.GetCraftableCount,result.recipe.id)
-        if available and available<1 then return false,"The game reports this recipe cannot be crafted yet. Check tools and cooldowns." end
-        local ok=pcall(api.CraftRecipe,result.recipe.id,1)
+        if available and available<count then return false,"The game cannot craft that quantity. Check materials, tools and cooldowns." end
+        local ok=pcall(api.CraftRecipe,result.recipe.id,count)
         return ok,ok and "Craft requested. Check the profession window for tools or cooldown requirements." or "WoW could not start this craft. Check the profession window."
     end
     local name=Read(P.craft and GetCraftDisplaySkillLine or GetTradeSkillLine)
@@ -179,7 +201,8 @@ function P.Craft(result)
         if recipeName and (id==result.recipe.id or type(result.recipe.id)=="string" and recipeName..(P.craft and subName or "" )==result.recipe.id) then
             local fn=P.craft and DoCraft or DoTradeSkill
             if type(fn)~="function" then break end
-            local ok=pcall(fn,i,1)
+            if P.craft and count>1 then return false,"This profession creates one item at a time. Set the quantity to 1." end
+            local ok=pcall(fn,i,count)
             return ok,ok and "Craft requested. Complete any target selection in the profession window." or "WoW could not start the craft."
         end
     end

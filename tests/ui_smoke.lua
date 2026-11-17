@@ -8,7 +8,8 @@ for _, name in ipairs({"SetBackdrop", "SetBackdropColor", "SetBackdropBorderColo
     "SetTextColor", "SetJustifyH", "SetFont", "SetFontObject", "SetAutoFocus", "SetMaxLetters",
     "SetHighlightTexture", "ClearFocus", "SetOwner", "SetHyperlink", "SetItemByID", "AddLine",
     "AddDoubleLine", "SetAllPoints", "SetBlendMode", "SetVertexColor", "SetColorTexture", "AddMaskTexture",
-    "SetWordWrap", "SetNumeric", "SetOrientation", "SetMinMaxValues", "SetValueStep", "SetObeyStepOnDrag", "SetThumbTexture", "SetFocus", "HighlightText"}) do methods[name] = noop end
+    "SetWordWrap", "SetNumeric", "SetOrientation", "SetMinMaxValues", "SetValueStep", "SetObeyStepOnDrag", "SetThumbTexture", "SetFocus", "HighlightText", "SetNormalTexture", "SetPushedTexture", "SetDisabledTexture"}) do methods[name] = noop end
+function methods:SetEnabled(value) self.enabled=value end
 function methods:GetStringHeight() return 500 end
 function methods:SetScript(event, fn) self.scripts[event] = fn end
 function methods:HookScript(event, fn) self.hooks[event] = fn end
@@ -169,11 +170,24 @@ UI.clearFilters.scripts.OnClick()
 assert(UI.rosterFilters.query==nil, "Clear filters resets character search")
 Vault.db.characters["1:one"].professions={Alchemy={name="Alchemy",rank=10,maximum=75,updated=2000,
     recipes={[101]={id=101,name="Test potion",reagents={{id=1,name="Peacebloom",count=1}}}}}}
-UI.selected="1:one"; UI.source="crafting"; UI.query=""
+UI.selected="1:one"; Vault.currentKey="1:one"; UI.source="crafting"; UI.query=""
 UI.Refresh()
 assert(UI.crafting:IsShown() and not UI.itemsScroll:IsShown() and #Vault.CraftingUI.results==1,
     "Crafting tab lists saved recipes separately from the inventory")
-assert(Vault.CraftingUI.status.text:find("Enough",1,true), "Crafting details show material sufficiency")
+assert(Vault.CraftingUI.status.text:find("available",1,true), "Crafting details show material sufficiency")
+local crafting=Vault.CraftingUI
+assert(crafting.auctionButton==nil,"No AH shopping button on the crafting page")
+crafting.SetQuantity(3)
+assert(crafting.Quantity()==3 and crafting.craftButton.text=="Create","Quantity and native Create control")
+crafting.decrease.scripts.OnClick(); assert(crafting.Quantity()==2)
+crafting.increase.scripts.OnClick(); assert(crafting.Quantity()==3)
+crafting.SetQuantity(0); assert(crafting.craftButton.enabled==false,"Create is disabled at zero")
+crafting.SetQuantity(10000); assert(crafting.Quantity()==999,"Batch size is bounded")
+local submit=crafting.Submit; local submitted
+crafting.Submit=function(count) submitted=count end
+crafting.maximum=7; crafting.createAll.scripts.OnClick()
+assert(submitted==7,"Create All uses the currently available craft count")
+crafting.Submit=submit
 Vault.Sync={config={enabled=false,auto=true},status="Not linked."}
 assert(loadfile(root.."/WarbandVaultForever/SyncUI.lua"))("WVF",Vault)
 if not UI.settingsFrame:IsShown() then UI.Settings() end

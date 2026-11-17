@@ -4,6 +4,15 @@ local _, Vault = ...
 Vault.Crafting = {}
 local Crafting = Vault.Crafting
 
+function Crafting.ScaleRecipe(recipe, count)
+    local result={reagents={},incomplete=recipe.incomplete}
+    for _,r in ipairs(recipe.reagents or {}) do
+        local scaled={}; for k,v in pairs(r) do scaled[k]=v end
+        scaled.count=r.count*count; result.reagents[#result.reagents+1]=scaled
+    end
+    return result
+end
+
 function Crafting.Recipes(db, key, profession, query, allowed)
     local results = {}
     query = (query or ""):lower()

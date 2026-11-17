@@ -81,3 +81,15 @@ Auctionator list names, and craft guards for missing materials, foreign windows,
 closed professions and offline owners. UI smoke checks verify the Settings/sync
 stacking fix. Live crafting and Auctionator list creation remain unverified:
 the user stopped Computer Use with Escape before those new controls were tested.
+
+For alpha.2, UI smoke checks cover zero/bounded quantities, arrow buttons,
+Create All dispatch, and the absence of the AH shopping button on the crafting
+page. Shopping tests verify batch requirements and price estimates, material
+limits, invalid quantities, and the requested batch passed to the craft API.
+
+Observed 2026-11-17 in the live Forever client for alpha.2: the native-style
+controls render correctly, quantity arrows update the selected batch, and the
+Handstitched Leather Vest changes from 3 leather / 1 thread to 6 leather / 2
+thread for two crafts, with a doubled cached-price estimate. The recipe footer
+has visible clearance above the bottom border. No craft was executed and no
+auction-house purchase was made during this layout check.

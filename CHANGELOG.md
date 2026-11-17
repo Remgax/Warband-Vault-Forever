@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.2.0-alpha.2] - 2026-11-17
+
+- Native-style Create All, quantity arrows, editable batch count, and Create controls.
+- Remove the AH shopping-list button from the crafting page; export remains in Materials.
+- Scale crafting, material shopping quantities, and price estimates to the selected batch.
+- Compact recipe details, shorter price/status text, and tighter material rows.
+- Remove repeated empty-storage messages and add padding above the bottom border.
+
 ## [0.2.0-alpha.1] - 2026-11-17
 
 - Pair two accounts once, with a private code and approval on the first account.
