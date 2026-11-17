@@ -102,6 +102,10 @@ For a new release, update the TOC version, `Vault.version` in `Core.lua`, and th
 changelog, commit and push main. CI creates the matching annotated tag and release.
 No personal token is required by the GitHub release workflow.
 
+Optional automatic CurseForge uploads use the same tested ZIP. Configure the
+project/game-version variables and private API secret as explained in the
+[CurseForge setup](docs/CURSEFORGE.md). Until configured, that job stays disabled.
+
 See [CurseForge listing text](docs/CURSEFORGE.md) and
 [art provenance and prompts](docs/ART.md). Report bugs through
 [GitHub Issues](https://github.com/Remgax/Warband-Vault-Forever/issues).

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Optional CurseForge publishing from the tested GitHub Actions package, with
+  project/version variables, a private API secret, and manual first-upload support.
+
 ## [0.1.0-alpha.1] - 2026-11-17
 
 First public alpha for World of Warcraft: Forever (Interface 16001).
