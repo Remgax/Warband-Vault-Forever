@@ -38,17 +38,28 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", type=Path)
     parser.add_argument("--list-versions", action="store_true")
+    parser.add_argument("--check", action="store_true", help="Verify the token and configured game versions without uploading")
     args = parser.parse_args()
     token = os.environ.get("CF_API_KEY", "")
     if not token:
         raise ValueError("Set the private CF_API_KEY repository secret before uploading.")
     headers = {"X-Api-Token": token, "User-Agent": "WarbandVaultForever-CI"}
-    if args.list_versions:
+    if args.list_versions or args.check:
         request = urllib.request.Request(BASE + "/game/versions", headers=headers)
         with urllib.request.urlopen(request, timeout=60) as response:
-            for item in json.load(response):
-                if "1.60" in str(item.get("name", "")) or "forever" in str(item).lower():
-                    print(json.dumps(item))
+            available = json.load(response)
+        if args.list_versions:
+            for item in available:
+                if "1.60" in str(item.get("name", "")) or "forever" in str(item).lower(): print(json.dumps(item))
+        else:
+            configured = os.environ.get("CURSEFORGE_GAME_VERSION_ID", "")
+            project = os.environ.get("CURSEFORGE_PROJECT_ID", "")
+            if not project.isdigit() or not configured or not all(value.isdigit() for value in configured.split(",")):
+                raise ValueError("Configure numeric project and game-version IDs before checking credentials.")
+            wanted = {int(value) for value in configured.split(",")}
+            if not wanted.issubset({item["id"] for item in available}):
+                raise ValueError("Configured game-version ID is not available from CurseForge.")
+            print("CurseForge API token accepted; configured game-version IDs verified. No file uploaded.")
         return
     project = os.environ.get("CURSEFORGE_PROJECT_ID", "")
     versions = os.environ.get("CURSEFORGE_GAME_VERSION_ID", "")

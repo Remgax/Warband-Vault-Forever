@@ -103,3 +103,15 @@ used only to authenticate to CurseForge. GitHub release publishing uses GitHub's
 own short-lived workflow token.
 
 API reference: https://support.curseforge.com/support/solutions/articles/9000197321-curseforge-upload-api
+
+## This project's setup
+
+- Project: **1812032** (`warband-vault-forever`).
+- Forever **1.60.1** game-version ID: **17053** (verified through CurseForge's API).
+- First alpha file: **9664021**, uploaded 2026-11-17 and initially marked Under Review.
+- `CF_API_KEY` is stored only as an encrypted repository secret, not in source.
+
+Configured main/tag builds perform a read-only token/game-version check before
+publication. A passing check does not upload a duplicate file. The actual
+CurseForge publish job runs when a new GitHub release is created, or when an
+explicit manual upload is requested.

@@ -1,6 +1,7 @@
 """Syntax, data regression, metadata, artwork, and release artifact checks."""
 from pathlib import Path
 import re
+import io
 import tempfile
 import zipfile
 import xml.etree.ElementTree as ET
@@ -9,7 +10,7 @@ from lupa.lua51 import LuaRuntime
 from PIL import Image
 import yaml
 from package import ROOT, ADDON, build, version
-from curseforge_upload import metadata, multipart
+from curseforge_upload import metadata, multipart, main as curseforge_main
 
 
 def main():
@@ -60,6 +61,12 @@ def main():
         body, boundary = multipart({"metadata": "{}"}, package)
         assert b'name="metadata"' in body and b'name="file"' in body
         assert package.read_bytes() in body and boundary.encode() in body
+        with patch("sys.argv", ["curseforge_upload.py", "--check"]), \
+             patch.dict("os.environ", {"CF_API_KEY": "fixture-token", "CURSEFORGE_PROJECT_ID": "1812032",
+                                       "CURSEFORGE_GAME_VERSION_ID": "17053"}), \
+             patch("urllib.request.urlopen", return_value=io.BytesIO(b'[{"id":17053,"name":"1.60.1"}]')) as request:
+            curseforge_main()
+            assert request.call_args.args[0].get_method() == "GET", "Credential checks must not upload"
         try:
             build(out, "v9.9.9")
         except ValueError:
