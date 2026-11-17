@@ -1,0 +1,10 @@
+dist/
+work/
+.venv/
+__pycache__/
+*.pyc
+*.lua.bak
+WTF/
+SavedVariables/
+.env
+.env.*

@@ -1,0 +1,5 @@
+<Bindings>
+    <Binding name="WVF_TOGGLE" header="WVF_HEADER">
+        WarbandVaultForever_Toggle();
+    </Binding>
+</Bindings>

@@ -1,0 +1,23 @@
+name: Bug report
+description: Report an addon problem
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Addon version and Forever client build
+      placeholder: 0.1.0-alpha.1 / 1.60.1.70938
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include what you expected and what happened.
+    validations:
+      required: true
+  - type: textarea
+    id: error
+    attributes:
+      label: Lua error
+      description: Paste the specific error. Do not attach your WTF folder or account SavedVariables.
+      render: text

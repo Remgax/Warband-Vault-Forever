@@ -1,0 +1,18 @@
+## Interface: 16001
+## Title: Warband Vault Forever
+## Notes: Browse saved character bags, banks, equipment, mail, and gold.
+## Author: Remgax
+## Version: 0.1.0-alpha.1
+## Category: Character
+## Category-enUS: Character
+## IconTexture: Interface\AddOns\WarbandVaultForever\Assets\Icon
+## SavedVariables: WarbandVaultForeverDB
+## X-Website: https://github.com/Remgax/Warband-Vault-Forever
+## X-License: GPL-3.0-only
+## ExcludeLoadGameType: wowhack
+
+Model.lua
+Scanner.lua
+UI.lua
+Core.lua
+Bindings.xml
