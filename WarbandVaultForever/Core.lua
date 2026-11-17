@@ -3,7 +3,7 @@
 local addonName, Vault = ...
 local frame = CreateFrame("Frame")
 local pending, pendingItems = false, false
-Vault.version = "0.1.0-alpha.1"
+Vault.version = "0.1.0-alpha.2"
 
 local function Print(message)
     DEFAULT_CHAT_FRAME:AddMessage("|cffffd36bWarband Vault:|r " .. message)
@@ -22,7 +22,7 @@ local function Slash(message)
     message = strtrim(message or ""):lower()
     if message == "scan" then
         Vault.Scanner.Refresh()
-        Print("Bags and equipment updated. Open a bank or mailbox to refresh those records.")
+        Print("Bags and equipment saved. Visit a bank or mailbox to update those items.")
     elseif message == "minimap" then
         Vault.db.settings.minimap = not (Vault.db.settings.minimap ~= false)
         Vault.UI.minimap:SetShown(Vault.db.settings.minimap)
@@ -31,8 +31,21 @@ local function Slash(message)
         Vault.db.settings.scale = 1
         if Vault.UI.frame then Vault.UI.ApplyPosition() end
         Print("Window position and scale reset.")
+    elseif message == "actionbar" then
+        Vault.db.settings.actionbar = Vault.db.settings.actionbar == false
+        Vault.UI.ActionBar()
+    elseif message == "settings" then
+        Vault.UI.Settings()
+    elseif message == "crafting" then
+        if not Vault.UI.frame or not Vault.UI.frame:IsShown() then Vault.UI.Toggle() end
+        Vault.UI.source = "crafting"; Vault.UI.Refresh()
+    elseif message == "sound" or message == "effects" then
+        Vault.db.settings[message] = Vault.db.settings[message] == false
+        if message == "effects" then Vault.UI.StopEffects() end
+        Vault.UI.RefreshSettings()
+        Print(message .. ": " .. (Vault.db.settings[message] and "on" or "off"))
     elseif message == "help" then
-        Print("/wvf - open vault; /wvf scan - refresh; /wvf minimap - toggle icon; /wvf resetui - reset window.")
+        Print("/wvf opens the vault. /wvf settings opens settings. /wvf crafting shows recipes. /wvf scan saves items. /wvf minimap or actionbar toggles a shortcut. /wvf sound or effects toggles sound or motion. /wvf resetui resets the window.")
     else
         Vault.UI.Toggle()
     end
@@ -49,12 +62,14 @@ local function Initialize()
     BINDING_NAME_WVF_TOGGLE = "Open character vault"
     WarbandVaultForever_Toggle = Vault.UI.Toggle
     Vault.UI.Minimap()
-    Print("Ready. Type /wvf to browse your characters.")
+    Vault.UI.ActionBar()
+    Print("Type /wvf to open.")
 end
 
 frame:SetScript("OnEvent", function(_, event, ...)
     if event == "ADDON_LOADED" then
         if ... == addonName then Initialize() end
+        if Vault.db then Vault.UI.ActionBar() end
         return
     end
     if not Vault.db then return end
@@ -74,6 +89,11 @@ frame:SetScript("OnEvent", function(_, event, ...)
         Queue()
     elseif event == "PLAYER_LOGOUT" then
         Vault.Scanner.Refresh()
+    elseif event == "TRADE_SKILL_SHOW" or event == "CRAFT_SHOW" then
+        Vault.Professions.open, Vault.Professions.craft = true, event == "CRAFT_SHOW"
+        Queue()
+    elseif event == "TRADE_SKILL_CLOSE" or event == "CRAFT_CLOSE" then
+        Vault.Professions.open = false
     elseif event == "ITEM_DATA_LOAD_RESULT" then
         local id, success = ...
         if success then
@@ -91,7 +111,10 @@ frame:SetScript("OnEvent", function(_, event, ...)
         Vault.Scanner.Identity()
         Vault.UI.Refresh()
     elseif event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" then
+        Vault.UI.ActionBar()
         C_Timer.After(1, Queue)
+    elseif event == "PLAYER_REGEN_ENABLED" then
+        Vault.UI.ActionBar()
     else
         Queue()
     end
@@ -100,6 +123,8 @@ end)
 for _, event in ipairs({"ADDON_LOADED", "PLAYER_LOGIN", "PLAYER_ENTERING_WORLD", "PLAYER_LOGOUT",
     "BAG_UPDATE_DELAYED", "PLAYER_MONEY", "PLAYER_EQUIPMENT_CHANGED", "PLAYER_LEVEL_UP",
     "ZONE_CHANGED_NEW_AREA", "BANKFRAME_OPENED", "BANKFRAME_CLOSED", "PLAYERBANKSLOTS_CHANGED",
-    "MAIL_SHOW", "MAIL_CLOSED", "MAIL_INBOX_UPDATE", "ITEM_DATA_LOAD_RESULT"}) do
-    frame:RegisterEvent(event)
+    "MAIL_SHOW", "MAIL_CLOSED", "MAIL_INBOX_UPDATE", "ITEM_DATA_LOAD_RESULT", "PLAYER_REGEN_ENABLED",
+    "TRADE_SKILL_SHOW", "TRADE_SKILL_CLOSE", "TRADE_SKILL_UPDATE", "TRADE_SKILL_LIST_UPDATE",
+    "TRADE_SKILL_DATA_SOURCE_CHANGED", "NEW_RECIPE_LEARNED", "SKILL_LINES_CHANGED", "CRAFT_SHOW", "CRAFT_CLOSE", "CRAFT_UPDATE"}) do
+    pcall(frame.RegisterEvent, frame, event)
 end

@@ -20,6 +20,8 @@ def main():
         compile_lua(path.read_text(encoding="utf-8"), path.name)
     vault, _ = lua.execute((ROOT / "tests/regression.lua").read_text(encoding="utf-8"), ROOT.as_posix())
     lua.execute((ROOT / "tests/ui_smoke.lua").read_text(encoding="utf-8"), ROOT.as_posix(), vault)
+    profession_lua = LuaRuntime(unpack_returned_tuples=True)
+    profession_lua.execute((ROOT / "tests/professions.lua").read_text(encoding="utf-8"), ROOT.as_posix())
     lua.execute((ROOT / "tests/core_events.lua").read_text(encoding="utf-8"), ROOT.as_posix())
     toc = (ADDON / "WarbandVaultForever.toc").read_text()
     assert "## Interface: 16001" in toc
@@ -34,10 +36,13 @@ def main():
     assert f"## [{version()}]" in (ROOT / "CHANGELOG.md").read_text()
     for path in ADDON.glob("*.xml"):
         ET.parse(path)
-    for name, size in (("Icon.tga", (128, 128)), ("Header.tga", (1024, 256))):
+    for name, size in (("Icon.tga", (128, 128)), ("Header.tga", (1024, 256)),
+                       ("Satchel.tga", (1024, 512)), ("Leather.tga", (256, 256))):
         with Image.open(ADDON / "Assets" / name) as image:
             assert image.size == size and image.format == "TGA"
             assert all(dimension & (dimension - 1) == 0 for dimension in image.size)
+            if name == "Satchel.tga":
+                assert image.mode == "RGBA" and image.getextrema()[3][0] == 0, "Satchel silhouette must preserve transparency"
     with Image.open(ROOT / "docs/images/curseforge-logo.png") as image:
         assert image.size == (400, 400)
     for path in (ROOT / ".github/workflows").glob("*.yml"):

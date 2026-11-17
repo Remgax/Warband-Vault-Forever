@@ -2,7 +2,7 @@
 
 ## Creation form
 
-- **Project name:** Warband Vault
+- **Project name:** Warband Vault Forever
 - **Repository / in-game title:** Warband Vault Forever
 - **Summary:** Browse saved inventories, banks, equipment, and gold across your characters in one portrait-based interface.
 - **Logo:** `docs/images/curseforge-logo.png` (400 x 400 PNG).
@@ -14,17 +14,12 @@
 - **Initial file release type:** Alpha
 - **Game version:** Select the Forever 1.60.1 option matching the installed client.
 
-The creation form asks authors to leave the game's name out of the public
-project title, hence the shorter listing name. Category choices depend on the
-actual dropdown; use the closest character/inventory category it offers.
+Use the character and inventory categories offered by the creation form.
 
 ## Ready-to-paste description
 
-**Your characters. Their treasures. One vault.**
-
-Warband Vault brings your characters' belongings together in a dedicated inventory
-browser for World of Warcraft: Forever. Check who owns an item, browse a bank
-snapshot while playing another character, and see your recorded gold at a glance.
+Browse your characters' saved bags, banks, equipment, mail, and gold in World of
+Warcraft: Forever. Search for an item to see who owns it without switching characters.
 
 ### Features
 
@@ -34,8 +29,10 @@ snapshot while playing another character, and see your recorded gold at a glance
 - An all-character view with item name, item ID, owner, realm, and item type search.
 - Item quality filtering, stack counts, and owner totals in item tooltips.
 - Clear saved times and guidance when a bank or mailbox has not been recorded.
-- A movable window, adjustable scale, minimap shortcut, and optional key binding.
-- Original vault artwork designed for the in-game interface.
+- An open leather satchel with stitched edges and brass fittings.
+- A short opening animation, item hover glow, and WoW's backpack-opening sound.
+- Separate sound and effects controls, a movable window, and adjustable scale.
+- Shortcuts beside the action-bar bags and on the minimap, plus an optional key binding.
 
 ### Getting started
 
@@ -43,7 +40,7 @@ snapshot while playing another character, and see your recorded gold at a glance
 2. Enable **Warband Vault Forever** in the AddOns menu.
 3. Log into each character you want to record.
 4. Open that character's bank and mailbox to record those locations.
-5. Type **/wvf** or click the vault icon near the minimap.
+5. Type **/wvf** or click the vault beside the action-bar bags or minimap.
 
 ### How saved records work
 
@@ -59,11 +56,14 @@ tracking are not included in the first alpha.
 
 ### Commands
 
-- **/wvf** — open or close the vault.
-- **/wvf scan** — refresh accessible records.
-- **/wvf minimap** — show or hide the minimap button.
-- **/wvf resetui** — reset the window position and scale.
-- **/wvf help** — show command help.
+- `/wvf`: open or close the vault.
+- `/wvf scan`: save accessible items.
+- `/wvf minimap`: show or hide the minimap button.
+- `/wvf actionbar`: show or hide the button beside the bags.
+- `/wvf sound`: turn the opening sound on or off.
+- `/wvf effects`: turn animation and hover glow on or off.
+- `/wvf resetui`: reset the window position and scale.
+- `/wvf help`: show command help.
 
 This is an early alpha. Please report problems through GitHub Issues with your
 client build, reproduction steps, and any Lua error. Never attach your entire

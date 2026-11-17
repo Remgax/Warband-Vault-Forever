@@ -40,8 +40,11 @@ local function Containers(character, source, bags)
         for slot = 1, slots do
             local info = container.GetContainerItemInfo(bag, slot)
             if info and info.itemID then
-                items[#items + 1] = Item(info.itemID, info.hyperlink, info.iconFileID,
+                local entry = Item(info.itemID, info.hyperlink, info.iconFileID,
                     info.stackCount, info.quality, bag, slot)
+                entry.bound = info.isBound
+                if entry.bound == nil and C_Item.IsBound then entry.bound = C_Item.IsBound({bagID = bag, slotIndex = slot}) end
+                items[#items + 1] = entry
             elseif C_Item.DoesItemExist and C_Item.DoesItemExist({bagID = bag, slotIndex = slot}) then
                 local id = C_Item.GetItemID({bagID = bag, slotIndex = slot})
                 if id and C_Item.RequestLoadItemDataByID then C_Item.RequestLoadItemDataByID(id) end
@@ -129,6 +132,7 @@ function Scanner.Refresh()
     Scanner.Equipment()
     Scanner.Bank()
     Scanner.Mail()
+    if Vault.Professions then Vault.Professions.Skills(); Vault.Professions.Scan() end
     if Vault.UI then Vault.UI.Refresh() end
 end
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Warband Vault — CurseForge description</title>
+  <title>Warband Vault Forever - CurseForge description</title>
   <style>
     body { margin: 0; background: #e9eef2; color: #172838; font: 16px/1.65 Arial, sans-serif; }
     main { max-width: 850px; margin: 32px auto; padding: 32px 40px; background: white; border-radius: 8px; }
@@ -29,20 +29,22 @@
   </div></div>
   <main>
     <article id="description" tabindex="0" aria-label="CurseForge project description">
-      <h1>Warband Vault</h1>
-      <p><strong>Your characters. Their treasures. One vault.</strong></p>
-      <p>Keep track of your characters’ belongings in one inventory browser for World of Warcraft: Forever.
-      Find which character owns an item, browse recorded bank contents, and check your gold without switching characters.</p>
+      <h1>Warband Vault Forever</h1>
+      <p>Browse your characters' saved bags, banks, equipment, mail, and gold in World of Warcraft: Forever.
+      Search for an item to see who owns it without switching characters.</p>
       <h2>Features</h2>
       <ul>
-        <li><strong>Character overview:</strong> Browse your recorded characters with portraits, class colors, levels, and realm names.</li>
-        <li><strong>Gold tracking:</strong> See each character’s wallet balance and your combined recorded gold.</li>
-        <li><strong>Inventory views:</strong> Browse bags, character banks, equipped items, and mailbox attachments.</li>
-        <li><strong>Account-wide search:</strong> Search recorded items by name, item ID, character, realm, or item type.</li>
-        <li><strong>Quality filters:</strong> Narrow your results by item quality.</li>
-        <li><strong>Item details:</strong> Hover over an item to see its tooltip, recorded owners, quantities, and saved time.</li>
-        <li><strong>Custom interface:</strong> Enjoy original vault artwork, a movable window, and adjustable scale.</li>
-        <li><strong>Minimap shortcut:</strong> Open the vault with its custom minimap icon, drag it to your preferred position, or hide it with a command.</li>
+        <li>A character list with portraits, class colors, levels, realms, and gold.</li>
+        <li>Separate views for bags, character banks, equipment, and mailbox attachments.</li>
+        <li>Search by item name, item ID, character, realm, or item type. Filter by item quality.</li>
+        <li>Item tooltips with owner counts and saved times.</li>
+        <li>Character search with class, profession, realm, faction, and level filters.</li>
+        <li>Saved professions and learned recipes, with material counts from bags and banks.</li>
+        <li>Missing-material checks show which alts hold supplies and where they are stored.</li>
+        <li>An open leather satchel with stitched edges, brass fittings, and item hover glow.</li>
+        <li>A short opening animation and WoW's backpack-opening sound, with separate controls to turn them off.</li>
+        <li>A separate Settings menu with sliders for window scale, opening-sound volume, and effects.</li>
+        <li>A vault button beside the action-bar bags and a draggable minimap shortcut.</li>
       </ul>
       <h2>Getting started</h2>
       <ol>
@@ -50,7 +52,8 @@
         <li>Restart WoW after the first installation.</li>
         <li>Log into each character you want to record.</li>
         <li>Open each character’s bank and mailbox to save those contents.</li>
-        <li>Type <strong>/wvf</strong> or click the vault icon near your minimap.</li>
+        <li>Open their professions to save recipes. Expand categories and clear profession filters to record more recipes on legacy windows.</li>
+        <li>Type <strong>/wvf</strong> or click the vault beside the action-bar bags or minimap.</li>
       </ol>
       <h2>How tracking works</h2>
       <p>The addon records each character while you play them. Those saved records remain available when you switch to
@@ -61,10 +64,15 @@
       Gold totals include character wallets; mailbox gold is displayed separately.</p>
       <h2>Commands</h2>
       <ul>
-        <li><strong>/wvf</strong> — Open or close the vault.</li>
-        <li><strong>/wvf scan</strong> — Refresh accessible records.</li>
-        <li><strong>/wvf minimap</strong> — Show or hide the minimap shortcut.</li>
-        <li><strong>/wvf resetui</strong> — Reset the window’s position and scale.</li>
+        <li><strong>/wvf</strong>: open or close the vault.</li>
+        <li><strong>/wvf scan</strong>: save accessible items.</li>
+        <li><strong>/wvf settings</strong>: open settings.</li>
+        <li><strong>/wvf crafting</strong>: browse saved recipes and material counts.</li>
+        <li><strong>/wvf minimap</strong>: show or hide the minimap shortcut.</li>
+        <li><strong>/wvf actionbar</strong>: show or hide the button beside the bags.</li>
+        <li><strong>/wvf sound</strong>: turn the opening sound on or off.</li>
+        <li><strong>/wvf effects</strong>: turn animation and hover glow on or off.</li>
+        <li><strong>/wvf resetui</strong>: reset the window's position and scale.</li>
       </ul>
       <h2>Early alpha</h2>
       <p>This first version focuses on character inventories. Shared account banks, guild banks, auctions, currencies,

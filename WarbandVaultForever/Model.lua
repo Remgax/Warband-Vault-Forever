@@ -31,9 +31,25 @@ function Model.Save(character, source, items, capacity, timestamp)
     }
 end
 
-function Model.Characters(db, sort)
+function Model.Characters(db, sort, filters)
     local result = {}
-    for _, character in pairs(db.characters) do result[#result + 1] = character end
+    filters = filters or {}
+    for _, character in pairs(db.characters) do
+        local matches = (not filters.class or character.class == filters.class)
+            and (not filters.realm or character.realm == filters.realm)
+            and (not filters.faction or character.faction == filters.faction)
+            and (not filters.minLevel or (character.level or 0) >= filters.minLevel)
+            and (not filters.maxLevel or (character.level or 0) <= filters.maxLevel)
+            and (not filters.profession or character.professions and character.professions[filters.profession])
+        local professions = ""
+        for name in pairs(character.professions or {}) do professions = professions .. " " .. name end
+        local text = ((character.name or "") .. " " .. (character.realm or "") .. " " ..
+            (character.className or character.class or "") .. " " .. professions):lower()
+        for token in (filters.query or ""):lower():gmatch("%S+") do
+            if not text:find(token, 1, true) then matches = false end
+        end
+        if matches then result[#result + 1] = character end
+    end
     table.sort(result, function(a, b)
         if sort == "gold" and (a.money or 0) ~= (b.money or 0) then
             return (a.money or 0) > (b.money or 0)
@@ -57,11 +73,11 @@ function Model.Totals(db)
     return gold, characters, stacks
 end
 
-function Model.Find(db, key, source, query, quality)
+function Model.Find(db, key, source, query, quality, allowed)
     local results = {}
     query = (query or ""):lower()
     for _, character in pairs(db.characters) do
-        if not key or key == character.key then
+        if (not key or key == character.key) and (not allowed or allowed[character.key]) then
             for _, location in ipairs(sources) do
                 if source == "all" or source == location then
                     local snapshot = character.snapshots[location]

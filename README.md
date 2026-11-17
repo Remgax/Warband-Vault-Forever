@@ -5,11 +5,8 @@
 
 ![A gold vault door, blue light, coins, and an inventory ledger](docs/images/vault-banner.png)
 
-**Your characters. Their treasures. One vault.**
-
-A character inventory browser for **World of Warcraft: Forever**, built for
-Interface **16001**. Browse saved bags, character bank tabs, equipment, mailbox
-attachments, and wallet gold without switching characters.
+Browse your characters' saved bags, banks, equipment, mail, and gold in
+**World of Warcraft: Forever** (Interface **16001**).
 
 ## Features
 
@@ -17,9 +14,15 @@ attachments, and wallet gold without switching characters.
 - Character-specific and all-character views with bags, bank, equipment, and mail tabs.
 - Search by item name, ID, character, realm, or item type; filter by item quality.
 - Item tooltips show recorded owners, quantities, location, and snapshot time.
-- Native Shift-click item linking, virtualized item scrolling, movable window,
-  automatic screen fitting, and adjustable UI scale.
-- Original vault emblem and header artwork; no third-party addon dependencies.
+- A leather satchel interface with stitched edges, brass fittings, an opening
+  animation, and item hover glow. Sound and effects can be turned off separately.
+- WoW's backpack-opening sound and a vault button beside the action-bar bags.
+- Shift-click item links, a movable window, adjustable scale, and a minimap button.
+- Original artwork and no required addon dependencies.
+- Search characters and filter by class, profession, realm, faction, and level.
+- Browse saved professions and learned recipes. Material checks count bags and
+  banks and show which alts hold missing supplies.
+- A separate Settings menu has sliders for scale, sound volume, and effects.
 
 ## Install
 
@@ -27,7 +30,7 @@ attachments, and wallet gold without switching characters.
    [Releases](https://github.com/Remgax/Warband-Vault-Forever/releases).
 2. Extract `WarbandVaultForever` into `_forever_/Interface/AddOns/`.
 3. Restart WoW after the first installation and enable **Warband Vault Forever**.
-4. Type **`/wvf`** or click the vault icon near your minimap.
+4. Type **`/wvf`**, click the vault beside the action-bar bags, or use its minimap icon.
 5. Log into each character once. Visit their bank and mailbox to record those locations.
 
 The correct layout is
@@ -54,14 +57,12 @@ other computers, other WoW accounts, or regions automatically. WoW writes them
 to `WarbandVaultForever.lua` under the account's SavedVariables when you log out
 or reload. Characters that have never loaded the addon cannot appear yet.
 
-Your current character uses a live portrait. Offline portraits use race and gender,
-since arbitrary rendered character appearances cannot be saved as a texture in
-SavedVariables. Gold totals include wallets; mailbox gold is shown separately.
+Your current character uses a live portrait. Offline portraits use race and gender.
+Gold totals include wallets; mailbox gold is shown separately.
 Mailbox records mark partial inboxes and retain expiration estimates.
 
-This first alpha does not track shared account banks, guild banks, auctions,
-currencies, or characters on other WoW accounts. The name "Warband Vault" refers
-to the account inventory viewer, not an implementation of a shared bank system.
+This alpha does not track shared account banks, guild banks, auctions,
+currencies, or characters on other WoW accounts.
 
 ## Commands and key binding
 
@@ -69,12 +70,25 @@ to the account inventory viewer, not an implementation of a shared bank system.
 | --- | --- |
 | `/wvf` or `/warbandvault` | Open or close the vault |
 | `/wvf scan` | Refresh accessible records |
+| `/wvf settings` | Open settings |
+| `/wvf crafting` | Browse saved recipes and materials |
 | `/wvf minimap` | Toggle minimap shortcut |
+| `/wvf actionbar` | Toggle the shortcut beside the bags |
+| `/wvf sound` | Toggle the backpack-opening sound |
+| `/wvf effects` | Toggle opening animation and hover glow |
 | `/wvf resetui` | Reset position and scale |
 | `/wvf help` | Show commands |
 
 Assign **Open character vault** under **Warband Vault Forever** in WoW's key
-binding settings. Press Escape to close the window.
+binding settings. Click the X or press Escape to close the window. Help contains
+the setup instructions. Settings is beside Refresh at the bottom of the window.
+
+Open each character's professions to save recipes. Clear profession filters and
+expand categories on legacy profession windows to record all visible recipes.
+Visit each bank to update its material counts. Soulbound items on alts, expired
+mail, COD attachments, and supplies on other realms/factions do not count as
+transferable materials. Tools, cooldowns, and optional reagent choices still
+need checking in the profession window.
 
 ## Development and releases
 

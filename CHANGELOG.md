@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+## [0.1.0-alpha.2] - 2026-11-17
+
+- Saved professions, learned recipes, and material checks across bags, banks,
+  and alts, with binding, realm, faction, COD, and mail-expiration guards.
+- Character search and class, profession, realm, faction, and level filters.
+- Circular item icons inside the bag and a full-width banner with an overlaid X.
+- Settings moved to the footer, with scale, sound-volume, and effects sliders.
+- Slider labels positioned above their bars.
+- Leather satchel inventory, stitched edges, brass borders, and new background art.
+- Short opening animation, item hover glow, and separate sound/effects controls.
+- WoW's backpack-opening sound when the vault opens.
+- Vault shortcut beside the action-bar bags, with a backpack fallback.
+- Standard WoW close button above the header; smaller header drag area fixes
+  the X button failing to close the window.
+- Shorter labels and help text. Setup instructions are available from Help.
 - Optional CurseForge publishing from the tested GitHub Actions package, with
   project/version variables, a private API secret, and manual first-upload support.
 

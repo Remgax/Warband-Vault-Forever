@@ -8,6 +8,11 @@ Created for Warband Vault Forever using the built-in image generation tool on
 - `vault-banner.png`: generated wide vault chamber illustration.
 - `WarbandVaultForever/Assets/Icon.tga`: 128 x 128 in-game icon.
 - `WarbandVaultForever/Assets/Header.tga`: 1024 x 256 in-game header.
+- `satchel-original.png`: generated open leather bag with brass buckles and an empty interior.
+- `leather-original.png`: generated dark chestnut leather background.
+- `Assets/Satchel.tga` and `Assets/Leather.tga`: game textures converted from those originals.
+- `Assets/CircleMask.tga`, `SlotRing.tga`, and `SlotGlow.tga`: deterministic
+  circular mask, quality ring, and hover glow drawn by `tools/convert_art.py`.
 
 `tools/convert_art.py` performs image format/size conversion for distribution.
 The TGA textures use power-of-two dimensions and are shipped with the addon.

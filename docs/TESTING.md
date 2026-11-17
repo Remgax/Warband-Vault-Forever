@@ -27,6 +27,28 @@ client build, date, and observed results when performing these checks.
 14. Assign the vault key binding and check it opens/closes the window.
 15. Test alongside the user's existing bag addons. This viewer must not replace
     their bags or perform item moves, purchases, mail sends, or gold transfers.
+16. Click the X in the top-right of the header. Confirm it closes immediately,
+    including after dragging the window. Reopen and verify Escape also closes it.
+17. Click the vault beside the action-bar bags. Confirm it opens the same window,
+    follows the bags bar, and does not change the backpack's behavior.
+18. Open from each shortcut and `/wvf`. The native backpack sound should play
+    once on opening, and never when switching tabs or receiving bag updates.
+19. Adjust the sound and effects sliders in Settings. Confirm choices survive `/reload` and
+    closing the window stops the opening animation.
+20. Check scale, volume, and effects sliders at their endpoints and intermediate values.
+    Labels must sit above the bars; Settings sits beside Refresh in the footer.
+21. Open each profession and compare learned recipes. Check material counts in
+    bags and bank; check an alt with transferable and soulbound supplies.
+22. Search characters and combine class, profession, realm, faction, and level filters.
+
+Observed 2026-11-17 on Forever 1.60.1.70938: the bag-bar shortcut opens the
+vault; the repaired X closes it. Circular item icons fit inside the bag.
+The full-width banner and footer Settings button render correctly. Slider
+labels render above the bars. Dragging scale changed 120% to 100% and resized
+the vault; volume changed 80% to 50%. Original preferences were restored.
+Opening Cooking saved all four visible learned recipes, shown in Crafting with
+reagent requirements and bags/bank counts. The character filter panel opens.
+Live multi-character material transfers and bank visits remain untested.
 
 Initial installation target: Forever `1.60.1.70938`, Interface `16001`.
 Multi-character bank/mail behavior remains unverified until steps 5-10 are

@@ -9,6 +9,9 @@ Vault.Scanner = {Identity=counted("identity"), Bank=counted("bank"),
 Vault.UI = {Toggle=counted("toggle"), Minimap=counted("minimap"),
     Refresh=counted("ui"), ApplyPosition=counted("position"),
     minimap={SetShown=function(_, value) calls.visible=value end}}
+Vault.UI.ActionBar=counted("actionbar")
+Vault.UI.StopEffects=counted("stopEffects")
+Vault.UI.RefreshSettings=counted("settings")
 CreateFrame=function()
     local f={events={}}
     function f:RegisterEvent(event) self.events[event]=true end
