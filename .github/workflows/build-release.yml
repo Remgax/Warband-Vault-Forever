@@ -82,6 +82,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: '3.14'
@@ -99,7 +100,7 @@ jobs:
           if [ -z "$RELEASE_TAG" ]; then
             RELEASE_TAG="$(python -c 'import sys; sys.path.insert(0,"tools"); from package import version; print("v"+version())')"
           fi
-          python tools/release_notes.py --tag "$RELEASE_TAG"
+          python tools/release_notes.py --tag "$RELEASE_TAG" --commits
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             echo 'Release already exists; leaving published assets unchanged.'
             echo 'created=false' >> "$GITHUB_OUTPUT"
@@ -125,6 +126,17 @@ jobs:
             --title "Warband Vault Forever $RELEASE_TAG" \
             --notes-file RELEASE_NOTES.md "${flags[@]}"
           echo 'created=true' >> "$GITHUB_OUTPUT"
+      - name: Add commit history to earlier alpha release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          for tag in v0.1.0-alpha.1 v0.1.0-alpha.2; do
+            if gh release view "$tag" >/dev/null 2>&1; then
+              python tools/release_notes.py --tag "$tag" --commits --out "$RUNNER_TEMP/notes.md"
+              gh release edit "$tag" --notes-file "$RUNNER_TEMP/notes.md"
+            fi
+          done
 
   curseforge:
     name: Upload release to CurseForge (opt in)
@@ -139,6 +151,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: '3.14'
@@ -156,4 +169,4 @@ jobs:
           CURSEFORGE_PROJECT_ID: ${{ vars.CURSEFORGE_PROJECT_ID }}
           CURSEFORGE_GAME_VERSION_ID: ${{ vars.CURSEFORGE_GAME_VERSION_ID }}
         run: |
-          python tools/curseforge_upload.py --file publish/*.zip
+          python tools/curseforge_upload.py --file publish/*.zip --commits

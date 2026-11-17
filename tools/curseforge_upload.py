@@ -12,11 +12,11 @@ from release_notes import notes
 BASE = "https://wow.curseforge.com/api"
 
 
-def metadata(current, version_ids):
+def metadata(current, version_ids, commits=False):
     release_type = "alpha" if "alpha" in current else "beta" if "-" in current else "release"
     return {
         "displayName": "Warband Vault Forever " + current,
-        "changelog": notes("v" + current),
+        "changelog": notes("v" + current, commits=commits),
         "changelogType": "markdown",
         "gameVersions": [int(value) for value in version_ids.split(",")],
         "releaseType": release_type,
@@ -37,6 +37,7 @@ def multipart(fields, archive):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", type=Path)
+    parser.add_argument("--commits", action="store_true", help="Include linked commit history in the file changelog")
     parser.add_argument("--list-versions", action="store_true")
     parser.add_argument("--check", action="store_true", help="Verify the token and configured game versions without uploading")
     args = parser.parse_args()
@@ -68,7 +69,7 @@ def main():
     expected = "WarbandVaultForever-" + version() + ".zip"
     if not args.file or args.file.name != expected:
         raise ValueError("Select the installable ZIP matching the current TOC version.")
-    body, boundary = multipart({"metadata": json.dumps(metadata(version(), versions))}, args.file)
+    body, boundary = multipart({"metadata": json.dumps(metadata(version(), versions, args.commits))}, args.file)
     headers["Content-Type"] = "multipart/form-data; boundary=" + boundary
     request = urllib.request.Request(f"{BASE}/projects/{project}/upload-file", data=body, headers=headers, method="POST")
     try:
