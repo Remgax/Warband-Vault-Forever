@@ -10,7 +10,7 @@ Browse your characters' saved bags, banks, equipment, mail, and gold in
 
 ## Features
 
-- Portrait roster with class colors, levels, realm names, gold, and name/gold sorting.
+- Character roster with class colors, levels, realm names, gold, and name/gold sorting.
 - Character-specific and all-character views with bags, bank, equipment, and mail tabs.
 - Search by item name, ID, character, realm, or item type; filter by item quality.
 - Item tooltips show recorded owners, quantities, location, and snapshot time.
@@ -60,7 +60,6 @@ exchanges records with a paired account on the same realm and faction. WoW write
 to `WarbandVaultForever.lua` under the account's SavedVariables when you log out
 or reload. Characters that have never loaded the addon cannot appear yet.
 
-Your current character uses a live portrait. Offline portraits use race and gender.
 Gold totals include wallets; mailbox gold is shown separately.
 Mailbox records mark partial inboxes and retain expiration estimates.
 
