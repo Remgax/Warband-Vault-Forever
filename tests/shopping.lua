@@ -43,7 +43,7 @@ assert(v.Professions.Craft(result) and called==1)
 self.snapshots.bags.items={{id=1,count=30},{id=2,count=12},{id=3,count=3}}
 availableCount=3; expectedCount=3
 assert(v.Professions.Available(result)==3)
-assert(v.Professions.Craft(result,3) and called==2,"Selected batch reaches the craft API")
+assert(v.Professions.Craft(result,v.Professions.Available(result)) and called==2,"Create All dispatches the full material-supported batch")
 assert(not v.Professions.Craft(result,4) and called==2,"Batch cannot exceed materials")
 assert(not v.Professions.Craft(result,0) and not v.Professions.Craft(result,1.5),"Invalid counts rejected")
 v.currentKey="1:other"; assert(not v.Professions.Craft(result) and called==2,"Offline owner cannot craft")

@@ -195,9 +195,12 @@ function View.Details(result)
     elseif plan.account > 0 then status = "Collect materials from alts or mail."
     else status = "Materials missing. See Materials for a shopping list." end
     View.status:SetText(status)
-    View.maximum=Vault.Professions and Vault.Professions.Available(result) or 0
+    -- Material capacity is useful even before the profession window is open.
+    -- The craft dispatcher still enforces profession, recipe and game guards.
+    View.maximum=character.key==Vault.currentKey and not plan.incomplete and
+        math.max(0,math.min(999,plan.noReagents and 1 or plan.bags)) or 0
     View.createAll:SetText("Create All ["..View.maximum.."]")
-    if View.quantityKey~=Key(result) then View.quantityKey=Key(result); View.quantity:SetText(View.maximum>0 and "1" or "0") end
+    if View.quantityKey~=Key(result) then View.quantityKey=Key(result); View.quantity:SetText("1") end
     View.UpdateControls()
     View.estimate:SetText(Vault.Shopping.Estimate(Vault.Shopping.Build(result,math.max(1,View.Quantity())),true))
     local y = 112

@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.2.0-alpha.7] - 2026-11-18
+
+- Start recipe quantities at 1 instead of leaving Create disabled at zero.
+- Show Create All capacity from the current character's bag materials even before opening the profession.
+- Keep bank/alt supplies as collection guidance and retain profession and game craft checks.
+- Refresh crafting controls when the profession closes.
+
 ## [0.2.0-alpha.6] - 2026-11-18
 
 - Use circular portrait masks and gold rings in the roster and selected character header.

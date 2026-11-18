@@ -3,7 +3,7 @@
 local addonName, Vault = ...
 local frame = CreateFrame("Frame")
 local pending, pendingItems = false, false
-Vault.version = "0.2.0-alpha.6"
+Vault.version = "0.2.0-alpha.7"
 
 local function Print(message)
     DEFAULT_CHAT_FRAME:AddMessage("|cffffd36bWarband Vault:|r " .. message)
@@ -98,6 +98,7 @@ frame:SetScript("OnEvent", function(_, event, ...)
         Queue()
     elseif event == "TRADE_SKILL_CLOSE" or event == "CRAFT_CLOSE" then
         Vault.Professions.open = false
+        Vault.UI.Refresh()
     elseif event == "ITEM_DATA_LOAD_RESULT" then
         local id, success = ...
         if success then

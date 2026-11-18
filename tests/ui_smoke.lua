@@ -177,6 +177,20 @@ assert(UI.crafting:IsShown() and not UI.itemsScroll:IsShown() and #Vault.Craftin
     "Crafting tab lists saved recipes separately from the inventory")
 assert(Vault.CraftingUI.status.text:find("available",1,true), "Crafting details show material sufficiency")
 local crafting=Vault.CraftingUI
+local recipeResult=crafting.currentResult
+crafting.quantityKey=nil
+crafting.Details(recipeResult)
+assert(crafting.Quantity()==1,"Recipe quantity starts at one even before crafting is available")
+assert(crafting.maximum>0 and crafting.createAll.enabled,"Create All uses materials in bags")
+local capacity=crafting.maximum
+local savedProfessions=Vault.Professions
+Vault.Professions={open=false}
+crafting.quantityKey=nil; crafting.Details(recipeResult)
+assert(crafting.Quantity()==1 and crafting.maximum==capacity and crafting.createAll.enabled,
+    "Closed profession does not zero bag-based Create All capacity or default quantity")
+Vault.Professions=savedProfessions
+crafting.Details(recipeResult)
+
 crafting.currentResult.recipe.icon=135879
 crafting.Details(crafting.currentResult)
 assert(crafting.output:IsShown() and crafting.outputIcon.texture==135879,"Selected recipe displays its output icon")
