@@ -36,10 +36,27 @@ function View.Create()
     View.recipeEmpty = W.Text(View.recipeChild, "", 12, C.text, 211)
     View.recipeEmpty:SetPoint("TOPLEFT", 4, -14)
     View.detailScroll, View.detailChild = W.Scroll(frame, 277, -3, 415, 253)
-    View.title = W.Text(View.detailChild, "", 17, C.gold, 396)
-    View.title:SetPoint("TOPLEFT", 1, -6)
-    View.owner = W.Text(View.detailChild, "", 11, C.muted, 396)
-    View.owner:SetPoint("TOPLEFT", 1, -32)
+    View.output = W.Panel(View.detailChild,42,42)
+    View.output:SetPoint("TOPLEFT",0,-3); View.output:EnableMouse(true)
+    View.outputIcon=View.output:CreateTexture(nil,"ARTWORK")
+    View.outputIcon:SetPoint("TOPLEFT",4,-4); View.outputIcon:SetPoint("BOTTOMRIGHT",-4,4)
+    View.outputIcon:SetTexCoord(0.06,0.94,0.06,0.94)
+    View.output:SetScript("OnEnter",function(self)
+        local result=View.currentResult
+        if not result then return end
+        local recipe=result.recipe
+        GameTooltip:SetOwner(self,"ANCHOR_RIGHT")
+        if recipe.outputID then GameTooltip:SetItemByID(recipe.outputID)
+        elseif recipe.link then GameTooltip:SetHyperlink(recipe.link)
+        else GameTooltip:AddLine(recipe.name,unpack(C.gold)) end
+        GameTooltip:Show()
+    end)
+    View.output:SetScript("OnLeave",function() GameTooltip:Hide() end)
+    View.title = W.Text(View.detailChild, "", 17, C.gold, 347)
+    View.title:SetPoint("TOPLEFT", 49, -6)
+    View.title:SetWordWrap(false)
+    View.owner = W.Text(View.detailChild, "", 11, C.muted, 347)
+    View.owner:SetPoint("TOPLEFT", 49, -32)
     View.status = W.Text(View.detailChild, "", 12, C.text, 396)
     View.status:SetPoint("TOPLEFT", 1, -54)
     View.estimate = W.Text(View.detailChild, "", 11, C.muted, 290)
@@ -144,7 +161,9 @@ function View.Details(result)
     View.currentResult=result
     for _,control in ipairs({View.craftButton,View.createAll,View.quantity,View.decrease,View.increase,View.materialButton}) do control:SetShown(result~=nil) end
     for _, row in ipairs(View.materialRows) do row:Hide() end
+    View.output:SetShown(result~=nil)
     if not result then
+        View.title:ClearAllPoints(); View.title:SetPoint("TOPLEFT",1,-6)
         View.title:SetText("Choose a recipe")
         View.owner:SetText("")
         View.status:SetText("Open each profession to save its recipes.")
@@ -155,6 +174,14 @@ function View.Details(result)
     end
     local recipe, character = result.recipe, result.character
     local plan = Crafting.Plan(View.inventory, character, recipe)
+    View.title:ClearAllPoints(); View.title:SetPoint("TOPLEFT",49,-6)
+    local icon=recipe.icon
+    if recipe.outputID and C_Item.GetItemInfo then
+        local cached=select(10,C_Item.GetItemInfo(recipe.outputID))
+        icon=cached or icon
+        if not cached and C_Item.RequestLoadItemDataByID then C_Item.RequestLoadItemDataByID(recipe.outputID) end
+    end
+    View.outputIcon:SetTexture(icon or 134400)
     View.title:SetText(recipe.name)
     View.owner:SetText(character.name .. " / " .. result.profession.name .. " " ..
         (result.profession.rank or "?") .. "/" .. (result.profession.maximum or "?"))

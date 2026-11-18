@@ -64,14 +64,25 @@ local function Scroll(parent, x, y, width, height)
 end
 
 local function Portrait(parent, size)
-    local backing = Panel(parent, size + 4, size + 4, C.inset)
-    backing:SetBackdropBorderColor(unpack(C.gold))
+    local backing = CreateFrame("Frame",nil,parent)
+    backing:SetSize(size+4,size+4)
+    local background=backing:CreateTexture(nil,"BACKGROUND")
+    background:SetAllPoints(); background:SetTexture(ART.."CircleMask")
+    background:SetVertexColor(unpack(C.inset))
     local texture = backing:CreateTexture(nil, "ARTWORK")
     texture:SetPoint("TOPLEFT", 2, -2)
     texture:SetPoint("BOTTOMRIGHT", -2, 2)
     backing.livePortrait = backing:CreateTexture(nil, "ARTWORK")
     backing.livePortrait:SetAllPoints(texture)
     backing.livePortrait:Hide()
+    local mask=backing:CreateMaskTexture(nil,"ARTWORK")
+    mask:SetTexture(ART.."CircleMask","CLAMPTOBLACKADDITIVE","CLAMPTOBLACKADDITIVE")
+    mask:SetAllPoints(texture)
+    texture:AddMaskTexture(mask); backing.livePortrait:AddMaskTexture(mask)
+    local rim=backing:CreateTexture(nil,"OVERLAY")
+    rim:SetTexture(ART.."SlotRing"); rim:SetAllPoints()
+    rim:SetVertexColor(unpack(C.gold))
+    backing.mask=mask; backing.rim=rim
     backing.portrait = texture
     return backing
 end

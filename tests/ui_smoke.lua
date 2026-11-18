@@ -9,6 +9,7 @@ for _, name in ipairs({"SetBackdrop", "SetBackdropColor", "SetBackdropBorderColo
     "SetHighlightTexture", "ClearFocus", "SetOwner", "SetHyperlink", "SetItemByID", "AddLine",
     "AddDoubleLine", "SetAllPoints", "SetBlendMode", "SetVertexColor", "SetColorTexture", "AddMaskTexture",
     "SetWordWrap", "SetNumeric", "SetOrientation", "SetMinMaxValues", "SetValueStep", "SetObeyStepOnDrag", "SetThumbTexture", "SetFocus", "HighlightText", "SetNormalTexture", "SetPushedTexture", "SetDisabledTexture"}) do methods[name] = noop end
+function methods:SetTexture(value) self.texture=value end
 function methods:SetEnabled(value) self.enabled=value end
 function methods:GetStringHeight() return 500 end
 function methods:SetScript(event, fn) self.scripts[event] = fn end
@@ -176,6 +177,12 @@ assert(UI.crafting:IsShown() and not UI.itemsScroll:IsShown() and #Vault.Craftin
     "Crafting tab lists saved recipes separately from the inventory")
 assert(Vault.CraftingUI.status.text:find("available",1,true), "Crafting details show material sufficiency")
 local crafting=Vault.CraftingUI
+crafting.currentResult.recipe.icon=135879
+crafting.Details(crafting.currentResult)
+assert(crafting.output:IsShown() and crafting.outputIcon.texture==135879,"Selected recipe displays its output icon")
+crafting.Details(nil); assert(not crafting.output:IsShown(),"Empty selection hides output icon")
+crafting.Details(crafting.results[1])
+assert(crafting.output.scripts.OnEnter and crafting.output.scripts.OnLeave,"Output icon has tooltip handlers")
 assert(crafting.auctionButton==nil,"No AH shopping button on the crafting page")
 crafting.SetQuantity(3)
 assert(crafting.Quantity()==3 and crafting.craftButton.text=="Create","Quantity and native Create control")
@@ -197,3 +204,5 @@ assert(Vault.SyncUI.frame:GetFrameLevel()>UI.settingsFrame:GetFrameLevel(),"Sync
 Vault.SyncUI.frame:Hide()
 assert(UI.settingsFrame:IsShown(),"Closing sync returns to Settings")
 print("PASS: satchel UI, close-button events, sound/effects settings, 2000-item scrolling, and bag-bar shortcut")
+
+assert(UI.portrait.mask and UI.portrait.rim,"Character header uses a circular portrait mask and ring")

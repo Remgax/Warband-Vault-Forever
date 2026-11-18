@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.2.0-alpha.6] - 2026-11-18
+
+- Use circular portrait masks and gold rings in the roster and selected character header.
+- Show the crafted item icon beside the selected recipe name, with an item tooltip on hover.
+- Resolve output icons from local item data when available and hide them for empty selections.
+
 ## [0.2.0-alpha.5] - 2026-11-18
 
 - Fix keybinding XML warnings by leaving Bindings.xml to the dedicated binding loader.

@@ -2,7 +2,7 @@
 ## Title: Warband Vault Forever
 ## Notes: Browse saved character bags, banks, equipment, mail, and gold.
 ## Author: Remgax
-## Version: 0.2.0-alpha.5
+## Version: 0.2.0-alpha.6
 ## Category: Inventory
 ## Category-enUS: Inventory
 ## IconTexture: Interface\AddOns\WarbandVaultForever\Assets\Icon
