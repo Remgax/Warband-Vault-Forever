@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [0.3.0-alpha.2] - 2026-11-18
+
+- Move the materials panel and its toggle clear of the profession side-tab icons.
+- Compact the right-side addon tab chain below the native profession icons when What's Training uses its default right placement.
+- Keep the bottom three addon icons beside the window rather than extending below its lower edge.
+- Respect explicit top/bottom tab placement and defer positioning during combat.
+
 ## [0.3.0-alpha.1] - 2026-11-18
 
 - Move saved recipes into a Warband recipes side tab in Forever's profession window; remove Crafting from the inventory vault.

@@ -5,10 +5,31 @@ local Window = {}
 Vault.ProfessionWindow = Window
 local W, Model = Vault.UI.widgets, Vault.Model
 local KEY = "WarbandVaultForever"
+-- Reserve the full native side-tab column and a gap before the materials panel.
+local SIDEBAR_GAP = 76
 
 local function Tabs()
     local tabs = ForeverCore and ForeverCore.ProfessionTabs
     return tabs and (tabs.minor or 0) >= 2 and tabs or nil
+end
+
+-- What's Training anchors its right tab at the window's bottom. ForeverCore
+-- stacks registered addon tabs beneath it, putting the last tabs outside the
+-- window. Move that chain's head below the native profession tabs instead.
+function Window.CompactTabs()
+    if InCombatLockdown and InCombatLockdown() then return end
+    local launcher = _G.WhatsTrainingCraftingTab
+    if not launcher or not launcher:IsShown() or WT_ProfessionTabPosition == "top" or WT_ProfessionTabPosition == "bottom" then return end
+    local host = ProfessionsFrame
+    local above = host and host.ProfessionsOverviewTab
+    for _, tab in ipairs(host and host.rightProfessionTabs or {}) do
+        if tab:IsShown() then above = tab end
+    end
+    if not above then return end
+    local point, relative, relativePoint, x, y = launcher:GetPoint(1)
+    if point == "TOPLEFT" and relative == above and relativePoint == "BOTTOMLEFT" and x == 0 and y == -2 then return end
+    launcher:ClearAllPoints()
+    launcher:SetPoint("TOPLEFT", above, "BOTTOMLEFT", 0, -2)
 end
 
 function Window.SelectedRecipe()
@@ -83,6 +104,7 @@ function Window.Attach()
     if Window.panel or not Vault.db or not ProfessionsFrame or not ProfessionsFrame.CraftingPage or not Tabs() then return end
     if InCombatLockdown and InCombatLockdown() then return end
     local host = ProfessionsFrame
+    Window.CompactTabs()
     Vault.CraftingUI.Create(host)
     Tabs().Register(KEY, {icon="Interface\\AddOns\\WarbandVaultForever\\Assets\\Icon",
         tooltip="Warband recipes",page=Vault.CraftingUI.frame,minWidth=850,
@@ -92,7 +114,7 @@ function Window.Attach()
     -- including other addons selecting their own profession pages.
     local panel=W.Panel(page or host,320,450)
     Window.panel=panel
-    panel:SetPoint("TOPLEFT",host,"TOPRIGHT",35,-45)
+    panel:SetPoint("TOPLEFT",host,"TOPRIGHT",SIDEBAR_GAP,-45)
     Window.title=W.Text(panel,"Warband materials",15,W.colors.gold,290)
     Window.title:SetPoint("TOPLEFT",14,-16)
     Window.scroll,Window.child=W.Scroll(panel,14,-52,265,330)
@@ -110,7 +132,7 @@ function Window.Attach()
         Vault.db.settings.professionMaterials=Vault.db.settings.professionMaterials==false
         Window.Visibility()
     end)
-    Window.toggle:SetPoint("TOPLEFT",host,"TOPRIGHT",35,-15)
+    Window.toggle:SetPoint("TOPLEFT",host,"TOPRIGHT",SIDEBAR_GAP,-15)
     host:HookScript("OnHide",function()
         if Tabs().Selected()==KEY then Tabs().ShowNative() end
         if Vault.UI.filterMenu then Vault.UI.filterMenu:Hide() end
@@ -121,6 +143,7 @@ function Window.Attach()
         elapsed=elapsed+delta
         if elapsed<0.3 then return end
         elapsed=0
+        Window.CompactTabs()
         Window.Visibility()
         local id,page=Window.SelectedRecipe()
         local input=page and page.CreateMultipleInputBox

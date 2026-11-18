@@ -9,6 +9,8 @@ for _, name in ipairs({"SetBackdrop", "SetBackdropColor", "SetBackdropBorderColo
     "SetHighlightTexture", "ClearFocus", "SetOwner", "SetHyperlink", "SetItemByID", "AddLine",
     "AddDoubleLine", "SetAllPoints", "SetBlendMode", "SetVertexColor", "SetColorTexture", "AddMaskTexture",
     "SetWordWrap", "SetNumeric", "SetOrientation", "SetMinMaxValues", "SetValueStep", "SetObeyStepOnDrag", "SetThumbTexture", "SetFocus", "HighlightText", "SetNormalTexture", "SetPushedTexture", "SetDisabledTexture"}) do methods[name] = noop end
+function methods:SetPoint(...) self.point={...} end
+function methods:GetPoint() return unpack(rawget(self,"point") or {}) end
 function methods:SetTexture(value) self.texture=value end
 function methods:SetEnabled(value) self.enabled=value end
 function methods:GetStringHeight() return 500 end
@@ -177,6 +179,10 @@ UI.Refresh()
 assert(UI.tabs.crafting==nil and UI.crafting==nil,"Vault has no Crafting tab or hidden crafting page")
 ProfessionsFrame=frame()
 ProfessionsFrame.CraftingPage=frame()
+ProfessionsFrame.ProfessionsOverviewTab=frame()
+ProfessionsFrame.rightProfessionTabs={frame(),frame()}
+WhatsTrainingCraftingTab=frame()
+WhatsTrainingCraftingTab:SetPoint("BOTTOMLEFT",ProfessionsFrame,"BOTTOMRIGHT",0,10)
 local selectedID=101
 ProfessionsFrame.CraftingPage.SchematicForm={GetRecipeInfo=function() return {recipeID=selectedID} end}
 ProfessionsFrame.CraftingPage.CreateMultipleInputBox=frame()
@@ -192,6 +198,22 @@ native.Attach(); local firstPanel=native.panel; native.Attach()
 assert(native.panel==firstPanel and registered.page==Vault.CraftingUI.frame,"Profession integration registers once")
 assert(Vault.CraftingUI.frame:GetFrameLevel()>ProfessionsFrame:GetFrameLevel()+50,"Saved page intercepts clicks above invisible native controls")
 assert(native.panel.parent==ProfessionsFrame.CraftingPage,"Materials sidebar belongs to native page")
+assert(native.panel.point[4]>=76 and native.toggle.point[4]>=76,"Sidebar and toggle leave the native icon column clear")
+local lastNative=ProfessionsFrame.rightProfessionTabs[2]
+assert(WhatsTrainingCraftingTab.point[1]=="TOPLEFT" and WhatsTrainingCraftingTab.point[2]==lastNative,
+    "Bottom addon tab chain starts under the last native profession icon")
+WT_ProfessionTabPosition="bottom"
+WhatsTrainingCraftingTab:SetPoint("TOPRIGHT",ProfessionsFrame,"BOTTOMRIGHT",-10,0)
+native.CompactTabs()
+assert(WhatsTrainingCraftingTab.point[1]=="TOPRIGHT","Explicit bottom placement remains respected")
+WT_ProfessionTabPosition=nil; native.CompactTabs()
+local previousCombat=InCombatLockdown
+InCombatLockdown=function() return true end
+WhatsTrainingCraftingTab:SetPoint("BOTTOMLEFT",ProfessionsFrame,"BOTTOMRIGHT",0,10)
+native.CompactTabs()
+assert(WhatsTrainingCraftingTab.point[1]=="BOTTOMLEFT","Tab positioning waits during combat")
+InCombatLockdown=previousCombat; native.CompactTabs()
+
 assert(native.result.recipe.id==101 and native.count==3,"Native recipe and quantity drive material plan")
 assert(native.text.text:find("Need 3",1,true),"Native sidebar scales materials to batch quantity")
 assert(native.Open(),"Open saved recipes through profession window")
