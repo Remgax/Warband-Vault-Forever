@@ -32,6 +32,9 @@
       <h1>Warband Vault Forever</h1>
       <p>Browse your characters' saved bags, banks, equipment, mail, and gold in World of Warcraft: Forever.
       Search for an item to see who owns it without switching characters.</p>
+      <p><strong>First beta: 0.3.0-beta.1.</strong> Track your characters' items and plan crafts from the profession window.
+      <a href="https://github.com/Remgax/Warband-Vault-Forever/releases/tag/v0.3.0-beta.1">Download the first beta</a>
+      and report problems through the GitHub issue tracker.</p>
       <h2>Features</h2>
       <ul>
         <li>A character list with class colors, levels, realms, and gold.</li>
@@ -39,9 +42,10 @@
         <li>Search by item name, item ID, character, realm, or item type. Filter by item quality.</li>
         <li>Item tooltips with owner counts and saved times.</li>
         <li>Character search with class, profession, realm, faction, and level filters.</li>
-        <li>Saved professions and learned recipes, with material counts from bags and banks.</li>
+        <li>Warband recipes in the profession window: saved character recipes, search, profession filters, bag availability, and quantity planning.</li>
+        <li>A collapsible materials panel beside native recipes, with bags, banks, alt holdings, saved times, and transfer restrictions.</li>
         <li>Missing-material checks show which alts hold supplies and where they are stored.</li>
-        <li>Create a selected batch or all available crafts from your current character's open profession, or build a materials list showing what to collect.</li>
+        <li>Craft with the game's own Create and Create All controls. Build a materials list showing what to collect and what is still missing.</li>
         <li>Auctionator shopping lists for remaining auction-house purchases, with rough costs from cached unit prices and clear price coverage.</li>
         <li>An open leather satchel with stitched edges, brass fittings, and item hover glow.</li>
         <li>A short opening animation and WoW's backpack-opening sound, with separate controls to turn them off.</li>
@@ -90,7 +94,7 @@
       option is turned off. One other account can be paired at a time.</p>
       <p>Keep the pairing code private. Sync uses authenticated WoW addon messages and does not use your WoW password
       or a cloud service. Messages are not encrypted. Cross-realm and cross-faction discovery are not supported.
-      Two-account transfers and alt switching pass simulated tests; live two-account transfer testing is still pending.</p>
+      Account sync passes simulated transfer and alt-switch tests; broader in-game reconnect testing continues during beta.</p>
       <h2>Commands</h2>
       <ul>
         <li><strong>/wvf</strong>: open or close the vault.</li>
@@ -104,8 +108,13 @@
         <li><strong>/wvf effects</strong>: turn animation and hover glow on or off.</li>
         <li><strong>/wvf resetui</strong>: reset the window's position and scale.</li>
       </ul>
-      <h2>Early alpha</h2>
+      <h2>Beta notes</h2>
+      <p>Updating from alpha keeps your saved characters and settings. Install the beta over the existing addon folder
+      and use <strong>/reload</strong>. Use the same addon version on both accounts for sync.</p>
+      <p>The profession layout, recipe browsing, material display, and return to native recipes have been checked in-game.
+      Full crafting batches, Auctionator shopping, and two-account reconnects still need broader beta testing.</p>
       <p>Shared account banks, guild banks, auctions, and currencies are not tracked.</p>
+      <p>For bug reports, include the addon version, client build, reproduction steps, and any Lua error. Keep pairing codes and account SavedVariables private.</p>
       <p>Found a problem or have a suggestion? Visit our
       <a href="https://github.com/Remgax/Warband-Vault-Forever/issues">GitHub issue tracker</a>.</p>
     </article>

@@ -80,8 +80,9 @@ def main():
             assert not any(re.search(r"WTF|SavedVariables|\.git/|tests/", n) for n in names)
         upload_metadata = metadata(version(), "123,456")
         assert upload_metadata["gameVersions"] == [123, 456]
-        assert upload_metadata["releaseType"] == "alpha"
+        assert upload_metadata["releaseType"] == ("alpha" if "alpha" in version() else "beta" if "-" in version() else "release")
         with patch("curseforge_upload.notes", return_value="Fixture changelog"):
+            assert metadata("0.1.0-alpha.1", "123")["releaseType"] == "alpha"
             assert metadata("0.1.0-beta.1", "123")["releaseType"] == "beta"
             assert metadata("0.1.0", "123")["releaseType"] == "release"
         body, boundary = multipart({"metadata": "{}"}, package)

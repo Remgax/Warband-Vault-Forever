@@ -8,6 +8,10 @@
 Browse your characters' saved bags, banks, equipment, mail, and gold in
 **World of Warcraft: Forever** (Interface **16001**).
 
+**First beta: 0.3.0-beta.1.** Inventory tracking, account sync, and the new
+profession-window tools are available for testing. Report problems through
+[GitHub Issues](https://github.com/Remgax/Warband-Vault-Forever/issues).
+
 ## Features
 
 - Character roster with class colors, levels, realm names, gold, and name/gold sorting.
@@ -18,13 +22,15 @@ Browse your characters' saved bags, banks, equipment, mail, and gold in
   animation, and item hover glow. Sound and effects can be turned off separately.
 - WoW's backpack-opening sound and a vault button beside the action-bar bags.
 - Shift-click item links, a movable window, adjustable scale, and a minimap button.
-- Original artwork and no required addon dependencies.
+- Original artwork. The inventory vault works on its own; profession tools need ForeverCore.
 - Search characters and filter by class, profession, realm, faction, and level.
-- Browse saved professions and learned recipes inside the profession window. Material checks count bags and
-  banks and show which alts hold missing supplies.
+- **Warband recipes** inside the profession window: browse saved characters and
+  learned recipes, search, filter by profession or bag availability, and plan quantities.
+- **Warband materials** beside native recipes: bags, banks, alt holdings, saved
+  times, transfer restrictions, and a list of supplies to collect or buy.
 - A separate Settings menu has sliders for scale, sound volume, and effects.
 - Pair another account once and sync its recorded characters from whichever alt is online.
-- Create a selected batch or all available crafts from the current character's open profession, or build a material list showing who holds supplies and where.
+- Craft with the profession window's own **Create** and **Create All** controls.
 - Create Auctionator shopping lists for remaining purchase quantities and view rough costs from its cached prices.
 
 ## Install
@@ -63,7 +69,7 @@ or reload. Characters that have never loaded the addon cannot appear yet.
 Gold totals include wallets; mailbox gold is shown separately.
 Mailbox records mark partial inboxes and retain expiration estimates.
 
-This alpha does not track shared account banks, guild banks, auctions,
+This beta does not track shared account banks, guild banks, auctions,
 or currencies.
 
 ## Commands and key binding
@@ -145,12 +151,27 @@ No website, cloud service, WoW password, or Battle.net login is used. Discovery
 uses a channel derived from the pairing code; records travel through addon
 whispers authenticated with HMAC-SHA256. They are not encrypted. The generated
 code uses WoW's random source, not an operating-system password generator; keep
-it private and treat it as an inventory-sharing code. This alpha supports one
+it private and treat it as an inventory-sharing code. This beta supports one
 paired account per account. Cross-realm and cross-faction discovery are not supported.
 
 Tests simulate two accounts, packet loss, character switching, invalid input,
-and offline caching. A live transfer between two separate game accounts still
-needs verification.
+and offline caching. Two-account reconnect and transfer testing in-game
+remains part of beta testing.
+
+## Beta testing
+
+Saved character data is retained when updating from the alpha releases. Install
+this release over the existing addon folder and use `/reload`; install the same
+version on both accounts if you use sync.
+
+The profession layout, recipe browsing, material display, and return to native
+recipes have been checked in-game. Automated checks cover saved inventories,
+recipe persistence, material ownership, shopping quantities, account sync, and
+release packaging. Full crafting batches, Auctionator shopping, and two-account
+reconnects still need broader testing in-game.
+
+When reporting a bug, include the addon version, client build, steps to reproduce,
+and the Lua error if present. Keep pairing codes and account SavedVariables private.
 
 ## Development and releases
 

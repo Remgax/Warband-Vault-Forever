@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+## [0.3.0-beta.1] - 2026-11-18
+
+First beta release, promoting the tested 0.3.0 alpha feature set.
+
+- Browse saved character bags, banks, equipment, mail, and wallet gold in the inventory vault.
+- Search inventories and filter characters by class, profession, realm, faction, and level.
+- Browse saved recipes in the native profession window with character, profession, search, and bag-availability filters.
+- Check native recipe materials across bags, banks, mail, and eligible alts; keep transfer restrictions and saved times visible.
+- Plan collection and purchases, export remaining quantities to Auctionator, and show estimates from cached prices.
+- Keep crafting on the game's Create and Create All controls; keep the materials panel clear of the compact profession tab column.
+- Share recorded characters between paired accounts without pairing each alt again.
+- Update GitHub and CurseForge descriptions with beta setup, feature requirements, and known limitations.
+- Preserve saved characters and settings from alpha releases. Both paired accounts should run the same release.
+
+Beta testing continues for full crafting batches, Auctionator shopping, and two-account reconnects. Shared account banks, guild banks, auctions, and currencies are not tracked.
+
 ## [0.3.0-alpha.2] - 2026-11-18
 
 - Move the materials panel and its toggle clear of the profession side-tab icons.
