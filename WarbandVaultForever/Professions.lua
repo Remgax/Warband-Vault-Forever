@@ -29,16 +29,20 @@ function P.Skills()
     if not character or not GetProfessions or not GetProfessionInfo then return end
     local ok, a, b, c, d, e, f = pcall(GetProfessions)
     if not ok then return end
-    local previous, found, incomplete = character.professions or {}, {}, false
+    local previous, found = character.professions or {}, {}
     for _, index in pairs({a, b, c, d, e, f}) do
         local good, name, icon, rank, maximum, _, _, id = pcall(GetProfessionInfo, index)
         if good and name then
             local skill = previous[name] or {name = name, recipes = {}}
             skill.id, skill.icon, skill.rank, skill.maximum = id, icon, rank, maximum
             found[name] = skill
-        else incomplete = true end
+        end
     end
-    if not incomplete then character.professions = found end
+    -- Login/skill events can arrive before all profession slots are populated.
+    -- Missing slots are not evidence that a saved profession was unlearned.
+    -- Keep recorded recipes; only update metadata for professions actually returned.
+    for name,skill in pairs(found) do previous[name]=skill end
+    character.professions=previous
 end
 
 local function Foreign()

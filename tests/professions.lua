@@ -84,3 +84,25 @@ assert(a.professions.Alchemy.recipes[101].reagents[1].id==1, "Legacy reagent lin
 P.open=false; GetNumTradeSkills=function() return 0 end
 P.Scan(); assert(a.professions.Alchemy.recipes[101], "Closing the profession preserves recipes")
 print("PASS: profession APIs, learned/foreign guards, character filters, bank/alt materials, binding and mail exclusions")
+
+-- Recreate the module as on relog, with saved recipes but no loaded skill slots.
+a.professions.Cooking={name="Cooking",recipes={[303]={id=303,name="Meal",reagents={}}}}
+local alchemy=a.professions.Alchemy.recipes
+local cooking=a.professions.Cooking.recipes
+load("Professions"); P=V.Professions
+GetProfessions=function() return nil end
+P.Skills()
+assert(a.professions.Alchemy.recipes==alchemy and a.professions.Cooking.recipes==cooking,
+    "Empty login metadata must preserve every saved profession and recipe")
+GetProfessions=function() return 1,2 end
+GetProfessionInfo=function(index) if index==1 then return "Alchemy",123,16,75,0,0,171 end end
+P.Skills()
+assert(a.professions.Alchemy.rank==16 and a.professions.Cooking.recipes==cooking,
+    "Partially loaded profession metadata preserves recipes in missing slots")
+GetProfessionInfo=function(index)
+ if index==1 then return "Alchemy",123,16,75,0,0,171 end
+ return "Cooking",456,10,75,0,0,185
+end
+P.Skills()
+assert(a.professions.Alchemy.recipes==alchemy and a.professions.Cooking.recipes==cooking)
+assert(#F.Recipes(M.Open(db),a.key,nil,"")>=3,"Saved recipes stay browseable after login without reopening professions")

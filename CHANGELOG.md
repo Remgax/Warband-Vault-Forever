@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.2.0-alpha.8] - 2026-11-18
+
+- Preserve saved professions and recipes when login skill metadata is empty or partially loaded.
+- Update returned profession metadata without deleting other cached professions.
+- Cover relog-style empty, partial and complete skill scans in regression tests.
+
 ## [0.2.0-alpha.7] - 2026-11-18
 
 - Start recipe quantities at 1 instead of leaving Create disabled at zero.
