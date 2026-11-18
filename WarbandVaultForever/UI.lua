@@ -92,8 +92,9 @@ UI.rosterFilters = {}
 
 function UI.FilterMenu(anchor, choices, selectChoice)
     if not UI.filterMenu then
-        local menu = Panel(UI.frame, 230, 300, nil, "WarbandVaultForeverFilterMenu")
-        menu:SetFrameLevel(UI.frame:GetFrameLevel() + 50)
+        local menu = Panel(UIParent, 230, 300, nil, "WarbandVaultForeverFilterMenu")
+        menu:SetFrameStrata("DIALOG")
+        menu:SetFrameLevel(100)
         menu:SetClampedToScreen(true)
         table.insert(UISpecialFrames, "WarbandVaultForeverFilterMenu")
         menu.scroll, menu.child = Scroll(menu, 8, -10, 192, 278)
@@ -393,14 +394,13 @@ function UI.Create()
     UI.characterGold = Text(main, "", 13, C.gold)
     UI.characterGold:SetPoint("TOPRIGHT", -16, -18)
     UI.tabs = {}
-    labels.crafting = "Crafting"
-    local tabKeys = {"all", "bags", "bank", "equipment", "mail", "crafting"}
+    local tabKeys = {"all", "bags", "bank", "equipment", "mail"}
     for i, key in ipairs(tabKeys) do
         local source = key
-        local button = Button(main, labels[key], 112, 30, function()
+        local button = Button(main, labels[key], 136, 30, function()
             UI.source = source; UI.itemsScroll:SetVerticalScroll(0); UI.Refresh()
         end)
-        button:SetPoint("TOPLEFT", 14 + (i - 1) * 120, -80)
+        button:SetPoint("TOPLEFT", 14 + (i - 1) * 145, -80)
         UI.tabs[key] = button
     end
 
@@ -462,7 +462,6 @@ function UI.Create()
     help:SetScript("OnLeave", function() GameTooltip:Hide() end)
     Text(f, "Hover for details. Shift-click to link.", 11, C.muted, 292):SetPoint("BOTTOMLEFT", 98, 31)
     Button(f, "Refresh", 100, 30, function() Vault.Scanner.Refresh() end):SetPoint("BOTTOMRIGHT", -22, 22)
-    if Vault.CraftingUI then Vault.CraftingUI.Create() end
     f:Hide()
 end
 
@@ -547,14 +546,7 @@ end
 
 function UI.RefreshItems()
     if not UI.frame or not Vault.db then return end
-    local crafting = UI.source == "crafting"
-    UI.satchel:SetShown(not crafting)
-    UI.itemsScroll:SetShown(not crafting)
-    UI.qualityButton:SetShown(not crafting)
-    if UI.crafting then UI.crafting:SetShown(crafting) end
-    if UI.professionButton then UI.professionButton:SetShown(crafting) end
-    UI.searchHint:SetText(crafting and "Search recipes or professions" or "Search items or characters")
-    if crafting and Vault.CraftingUI then Vault.CraftingUI.Refresh(); return end
+    if UI.source == "crafting" then UI.source = "bags" end
     local results = Model.Find(Vault.db, UI.selected, UI.source, UI.query, UI.quality, UI.visibleKeys)
     UI.results = results
     UI.itemsChild:SetHeight(math.max(VIEW_HEIGHT, math.ceil(#results / COLUMNS) * CELL))

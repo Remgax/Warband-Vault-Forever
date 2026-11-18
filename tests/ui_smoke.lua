@@ -41,6 +41,7 @@ function methods:SetScrollChild(child) self.child = child end
 function methods:SetVerticalScroll(value) self.scroll = value end
 function methods:GetVerticalScroll() return rawget(self, "scroll") or 0 end
 function methods:SetText(text) self.text = tostring(text) end
+function methods:GetNumber() return tonumber(self:GetText()) or 0 end
 function methods:GetText() return rawget(self, "text") or "" end
 function methods:SetChecked(value) self.checked=value end
 function methods:GetChecked() return rawget(self,"checked") end
@@ -171,44 +172,60 @@ UI.clearFilters.scripts.OnClick()
 assert(UI.rosterFilters.query==nil, "Clear filters resets character search")
 Vault.db.characters["1:one"].professions={Alchemy={name="Alchemy",rank=10,maximum=75,updated=2000,
     recipes={[101]={id=101,name="Test potion",reagents={{id=1,name="Peacebloom",count=1}}}}}}
-UI.selected="1:one"; Vault.currentKey="1:one"; UI.source="crafting"; UI.query=""
+UI.selected="1:one"; Vault.currentKey="1:one"; UI.source="bags"; UI.query=""
 UI.Refresh()
-assert(UI.crafting:IsShown() and not UI.itemsScroll:IsShown() and #Vault.CraftingUI.results==1,
-    "Crafting tab lists saved recipes separately from the inventory")
-assert(Vault.CraftingUI.status.text:find("available",1,true), "Crafting details show material sufficiency")
+assert(UI.tabs.crafting==nil and UI.crafting==nil,"Vault has no Crafting tab or hidden crafting page")
+ProfessionsFrame=frame()
+ProfessionsFrame.CraftingPage=frame()
+local selectedID=101
+ProfessionsFrame.CraftingPage.SchematicForm={GetRecipeInfo=function() return {recipeID=selectedID} end}
+ProfessionsFrame.CraftingPage.CreateMultipleInputBox=frame()
+ProfessionsFrame.CraftingPage.CreateMultipleInputBox:SetText("3")
+local tabs,registered={},nil
+ForeverCore={ProfessionTabs={minor=2,Register=function(key,spec) registered=spec; tabs.key=key end,
+    Select=function(key) tabs.selected=key; registered.page:Show(); registered.onSelect() end,
+    Selected=function() return tabs.selected end,
+    ShowNative=function() tabs.selected=nil; if registered then registered.page:Hide() end end}}
+assert(loadfile(root.."/WarbandVaultForever/ProfessionWindow.lua"))("WVF",Vault)
+local native=Vault.ProfessionWindow
+native.Attach(); local firstPanel=native.panel; native.Attach()
+assert(native.panel==firstPanel and registered.page==Vault.CraftingUI.frame,"Profession integration registers once")
+assert(Vault.CraftingUI.frame:GetFrameLevel()>ProfessionsFrame:GetFrameLevel()+50,"Saved page intercepts clicks above invisible native controls")
+assert(native.panel.parent==ProfessionsFrame.CraftingPage,"Materials sidebar belongs to native page")
+assert(native.result.recipe.id==101 and native.count==3,"Native recipe and quantity drive material plan")
+assert(native.text.text:find("Need 3",1,true),"Native sidebar scales materials to batch quantity")
+assert(native.Open(),"Open saved recipes through profession window")
 local crafting=Vault.CraftingUI
-local recipeResult=crafting.currentResult
-crafting.quantityKey=nil
-crafting.Details(recipeResult)
-assert(crafting.Quantity()==1,"Recipe quantity starts at one even before crafting is available")
-assert(crafting.maximum>0 and crafting.createAll.enabled,"Create All uses materials in bags")
-local capacity=crafting.maximum
-local savedProfessions=Vault.Professions
-Vault.Professions={open=false}
-crafting.quantityKey=nil; crafting.Details(recipeResult)
-assert(crafting.Quantity()==1 and crafting.maximum==capacity and crafting.createAll.enabled,
-    "Closed profession does not zero bag-based Create All capacity or default quantity")
-Vault.Professions=savedProfessions
-crafting.Details(recipeResult)
+assert(#crafting.results==1 and crafting.frame.parent==ProfessionsFrame,"Saved recipes moved into native window")
+assert(crafting.Quantity()==1,"Saved recipe planning starts at one")
+crafting.search:SetText("no such recipe"); crafting.search.scripts.OnTextChanged(crafting.search)
+assert(#crafting.results==0 and Vault.db.settings.recipeSearch=="no such recipe","Independent recipe search persists")
+crafting.search:SetText(""); crafting.search.scripts.OnTextChanged(crafting.search)
+assert(#crafting.results==1,"Clearing search restores saved recipes")
+crafting.availableButton.scripts.OnClick()
+assert(Vault.db.settings.recipeAvailableOnly and #crafting.results==1,"Bag availability filter uses saved materials")
+crafting.availableButton.scripts.OnClick()
 
-crafting.currentResult.recipe.icon=135879
-crafting.Details(crafting.currentResult)
-assert(crafting.output:IsShown() and crafting.outputIcon.texture==135879,"Selected recipe displays its output icon")
-crafting.Details(nil); assert(not crafting.output:IsShown(),"Empty selection hides output icon")
-crafting.Details(crafting.results[1])
-assert(crafting.output.scripts.OnEnter and crafting.output.scripts.OnLeave,"Output icon has tooltip handlers")
-assert(crafting.auctionButton==nil,"No AH shopping button on the crafting page")
-crafting.SetQuantity(3)
-assert(crafting.Quantity()==3 and crafting.craftButton.text=="Create","Quantity and native Create control")
-crafting.decrease.scripts.OnClick(); assert(crafting.Quantity()==2)
-crafting.increase.scripts.OnClick(); assert(crafting.Quantity()==3)
-crafting.SetQuantity(0); assert(crafting.craftButton.enabled==false,"Create is disabled at zero")
-crafting.SetQuantity(10000); assert(crafting.Quantity()==999,"Batch size is bounded")
-local submit=crafting.Submit; local submitted
-crafting.Submit=function(count) submitted=count end
-crafting.maximum=7; crafting.createAll.scripts.OnClick()
-assert(submitted==7,"Create All uses the currently available craft count")
-crafting.Submit=submit
+assert(crafting.createAll==nil and crafting.craftButton.text=="Show recipe","Actual crafting uses the native page")
+crafting.currentResult.recipe.icon=135879; crafting.Details(crafting.currentResult)
+assert(crafting.outputIcon.texture==135879,"Recipe output keeps its icon")
+crafting.SetQuantity(0); assert(crafting.Quantity()==1,"Planning never silently calculates a different quantity from its input")
+crafting.SetQuantity(3); assert(crafting.Quantity()==3)
+local oldAPI=C_TradeSkillUI; local oldProfessions=Vault.Professions
+local picked
+C_TradeSkillUI={GetBaseProfessionInfo=function() return {professionName="Alchemy"} end,
+    GetRecipeInfo=function(id) return {recipeID=id,learned=true} end}
+Vault.Professions={open=true}
+ProfessionsFrame.CraftingPage.SelectRecipe=function(_,info) picked=info.recipeID end
+crafting.ShowNative(); assert(picked==101 and tabs.selected==nil,"Show recipe selects native recipe without crafting")
+Vault.Professions.open=false; picked=nil
+crafting.ShowNative(); assert(picked==nil,"Closed profession cannot be opened from addon code")
+Vault.Professions=oldProfessions; C_TradeSkillUI=oldAPI
+native.collapse.scripts.OnClick(); assert(not native.panel:IsShown())
+native.toggle.scripts.OnClick(); assert(native.panel:IsShown(),"Materials sidebar can be restored")
+selectedID=999; native.Render(); assert(native.result==nil and not native.materials.enabled,"Unknown recipe clears stale materials")
+ProfessionsFrame:Hide(); assert(not native.Open(),"Saved browser does not force a profession window open")
+ProfessionsFrame:Show()
 Vault.Sync={config={enabled=false,auto=true},status="Not linked."}
 assert(loadfile(root.."/WarbandVaultForever/SyncUI.lua"))("WVF",Vault)
 if not UI.settingsFrame:IsShown() then UI.Settings() end

@@ -3,7 +3,7 @@
 local addonName, Vault = ...
 local frame = CreateFrame("Frame")
 local pending, pendingItems = false, false
-Vault.version = "0.2.0-alpha.8"
+Vault.version = "0.3.0-alpha.1"
 
 local function Print(message)
     DEFAULT_CHAT_FRAME:AddMessage("|cffffd36bWarband Vault:|r " .. message)
@@ -39,15 +39,15 @@ local function Slash(message)
     elseif message == "sync" then
         Vault.SyncUI.Open()
     elseif message == "crafting" then
-        if not Vault.UI.frame or not Vault.UI.frame:IsShown() then Vault.UI.Toggle() end
-        Vault.UI.source = "crafting"; Vault.UI.Refresh()
+        local ok,message=Vault.ProfessionWindow.Open()
+        if not ok then Print(message) end
     elseif message == "sound" or message == "effects" then
         Vault.db.settings[message] = Vault.db.settings[message] == false
         if message == "effects" then Vault.UI.StopEffects() end
         Vault.UI.RefreshSettings()
         Print(message .. ": " .. (Vault.db.settings[message] and "on" or "off"))
     elseif message == "help" then
-        Print("/wvf opens the vault. /wvf settings opens settings. /wvf crafting shows recipes. /wvf scan saves items. /wvf minimap or actionbar toggles a shortcut. /wvf sound or effects toggles sound or motion. /wvf resetui resets the window.")
+        Print("/wvf opens the vault. /wvf settings opens settings. /wvf crafting opens saved recipes in an open profession window. /wvf scan saves items. /wvf minimap or actionbar toggles a shortcut. /wvf sound or effects toggles sound or motion. /wvf resetui resets the window.")
     else
         Vault.UI.Toggle()
     end
@@ -65,6 +65,7 @@ local function Initialize()
     WarbandVaultForever_Toggle = Vault.UI.Toggle
     Vault.UI.Minimap()
     Vault.UI.ActionBar()
+    if Vault.ProfessionWindow then Vault.ProfessionWindow.Attach() end
     if Vault.Sync then Vault.Sync.Initialize() end
     Print("Type /wvf to open.")
 end
@@ -72,7 +73,7 @@ end
 frame:SetScript("OnEvent", function(_, event, ...)
     if event == "ADDON_LOADED" then
         if ... == addonName then Initialize() end
-        if Vault.db then Vault.UI.ActionBar() end
+        if Vault.db then Vault.UI.ActionBar(); if Vault.ProfessionWindow then Vault.ProfessionWindow.Attach() end end
         return
     end
     if not Vault.db then return end
@@ -95,6 +96,7 @@ frame:SetScript("OnEvent", function(_, event, ...)
         Vault.Scanner.Refresh()
     elseif event == "TRADE_SKILL_SHOW" or event == "CRAFT_SHOW" then
         Vault.Professions.open, Vault.Professions.craft = true, event == "CRAFT_SHOW"
+        if Vault.ProfessionWindow then Vault.ProfessionWindow.Attach() end
         Queue()
     elseif event == "TRADE_SKILL_CLOSE" or event == "CRAFT_CLOSE" then
         Vault.Professions.open = false
@@ -120,6 +122,7 @@ frame:SetScript("OnEvent", function(_, event, ...)
         C_Timer.After(1, Queue)
     elseif event == "PLAYER_REGEN_ENABLED" then
         Vault.UI.ActionBar()
+        if Vault.ProfessionWindow then Vault.ProfessionWindow.Attach() end
     else
         Queue()
     end

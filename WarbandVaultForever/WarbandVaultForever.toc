@@ -2,7 +2,7 @@
 ## Title: Warband Vault Forever
 ## Notes: Browse saved character bags, banks, equipment, mail, and gold.
 ## Author: Remgax
-## Version: 0.2.0-alpha.8
+## Version: 0.3.0-alpha.1
 ## Category: Inventory
 ## Category-enUS: Inventory
 ## IconTexture: Interface\AddOns\WarbandVaultForever\Assets\Icon
@@ -10,7 +10,7 @@
 ## X-Website: https://github.com/Remgax/Warband-Vault-Forever
 ## X-License: GPL-3.0-only
 ## ExcludeLoadGameType: wowhack
-## OptionalDeps: Auctionator
+## OptionalDeps: Auctionator, ForeverCore
 
 Model.lua
 Libs/SHA.lua
@@ -22,5 +22,6 @@ Scanner.lua
 Professions.lua
 UI.lua
 CraftingUI.lua
+ProfessionWindow.lua
 SyncUI.lua
 Core.lua

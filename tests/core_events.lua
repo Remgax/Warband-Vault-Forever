@@ -9,6 +9,7 @@ Vault.Scanner = {Identity=counted("identity"), Bank=counted("bank"),
 Vault.UI = {Toggle=counted("toggle"), Minimap=counted("minimap"),
     Refresh=counted("ui"), ApplyPosition=counted("position"),
     minimap={SetShown=function(_, value) calls.visible=value end}}
+Vault.ProfessionWindow={Attach=counted("professionAttach"), Open=function() calls.professionOpen=(calls.professionOpen or 0)+1; return true end}
 Vault.UI.ActionBar=counted("actionbar")
 Vault.UI.StopEffects=counted("stopEffects")
 Vault.UI.RefreshSettings=counted("settings")
@@ -57,6 +58,10 @@ SlashCmdList.WARBANDVAULTFOREVER("minimap")
 assert(calls.visible==true, "Second minimap toggle shows the button")
 SlashCmdList.WARBANDVAULTFOREVER("")
 assert(calls.toggle==1, "Slash command opens vault")
+SlashCmdList.WARBANDVAULTFOREVER("crafting")
+assert(calls.professionOpen==1 and calls.toggle==1,"Crafting command opens profession integration without opening vault")
+event("PLAYER_REGEN_ENABLED")
+assert(calls.professionAttach>=2,"Deferred profession integration retries after combat")
 WarbandVaultForever_Toggle()
 assert(calls.toggle==2, "Global key binding invokes UI")
 print("PASS: lifecycle, debounce, bank/mail guards, item load, slash commands, and key binding")

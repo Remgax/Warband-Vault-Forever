@@ -135,6 +135,7 @@ function Scanner.Refresh()
     Scanner.Mail()
     if Vault.Professions then Vault.Professions.Skills(); Vault.Professions.Scan() end
     if Vault.UI then Vault.UI.Refresh() end
+    if Vault.ProfessionWindow then Vault.ProfessionWindow.Refresh() end
 end
 
 function Scanner.ResolveItem(id)

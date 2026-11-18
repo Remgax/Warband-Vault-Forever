@@ -20,7 +20,7 @@ Browse your characters' saved bags, banks, equipment, mail, and gold in
 - Shift-click item links, a movable window, adjustable scale, and a minimap button.
 - Original artwork and no required addon dependencies.
 - Search characters and filter by class, profession, realm, faction, and level.
-- Browse saved professions and learned recipes. Material checks count bags and
+- Browse saved professions and learned recipes inside the profession window. Material checks count bags and
   banks and show which alts hold missing supplies.
 - A separate Settings menu has sliders for scale, sound volume, and effects.
 - Pair another account once and sync its recorded characters from whichever alt is online.
@@ -74,7 +74,7 @@ or currencies.
 | `/wvf scan` | Refresh accessible records |
 | `/wvf settings` | Open settings |
 | `/wvf sync` | Pair another account and view sync status |
-| `/wvf crafting` | Browse saved recipes and materials |
+| `/wvf crafting` | Open Warband recipes in an already open profession window |
 | `/wvf minimap` | Toggle minimap shortcut |
 | `/wvf actionbar` | Toggle the shortcut beside the bags |
 | `/wvf sound` | Toggle the backpack-opening sound |
@@ -93,14 +93,20 @@ mail, COD attachments, and supplies on other realms/factions do not count as
 transferable materials. Tools, cooldowns, and optional reagent choices still
 need checking in the profession window.
 
-In Crafting, select a recipe, enter a quantity and choose **Create**, or choose
-**Create All** for the currently available count. Open the owner's profession
-window first. Quantities count crafts, which may each produce multiple items.
-The addon submits the requested batch through WoW's API when the current
-character has the required materials; the game checks tools, cooldowns and any
-target selection. If materials are missing from bags, the button opens a list
-showing supplies to collect from banks, mail and eligible alts. When purchases
-remain and Auctionator is available, it creates a new shopping list there.
+Open a profession from your spellbook. **Warband materials** beside the native
+recipe view shows the selected recipe's requirements for the game's quantity:
+current bags and bank, alt holdings, scan ages, supplies to collect and items to buy.
+Hide the panel with **Hide**, and restore it with **Warband materials**.
+Craft with the game's own **Create** and **Create All** controls.
+
+Use the **Warband recipes** side tab to browse saved recipes from any character.
+Choose a character and profession, search recipes, or filter to recipes with
+materials in that character's saved bags. The planning quantity starts at one.
+**Show recipe** returns your current character's recipe to the native crafting
+page; open the matching profession first. Other characters' recipes are for
+planning until you log into them. Saved recipes survive relogging.
+This integration needs ForeverCore's profession tabs, minor 2 or later.
+The inventory vault contains storage tabs only.
 
 **Materials** opens the collection and purchase plan for the selected quantity.
 Its **Create Auctionator list** button creates a fresh list containing only the

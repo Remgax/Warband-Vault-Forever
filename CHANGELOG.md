@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.3.0-alpha.1] - 2026-11-18
+
+- Move saved recipes into a Warband recipes side tab in Forever's profession window; remove Crafting from the inventory vault.
+- Add a collapsible native-recipe materials panel with batch quantities, bags, bank and alt holdings, record age, collection sources and transfer restrictions.
+- Keep actual crafting in the game's profession page, using its Create and Create All controls.
+- Add independent character, profession, recipe search and bag-availability filters to saved recipes; remember search, profession, availability and panel visibility.
+- Keep Materials and shopping, Auctionator export and cached price estimates available beside native recipes and in saved recipe planning.
+- Require ForeverCore profession tabs minor 2 or later for this integration and keep cached profession data intact.
+
 ## [0.2.0-alpha.8] - 2026-11-18
 
 - Preserve saved professions and recipes when login skill metadata is empty or partially loaded.

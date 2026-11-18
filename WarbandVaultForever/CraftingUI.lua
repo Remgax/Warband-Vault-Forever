@@ -12,7 +12,7 @@ end
 local function Professions()
     local found, options = {}, {{text = "All professions", value = false}}
     for _, character in ipairs(Model.Characters(Vault.db)) do
-        if (not UI.selected or character.key == UI.selected) and (not UI.visibleKeys or UI.visibleKeys[character.key]) then
+        if (not View.character or character.key == View.character) then
             for name in pairs(character.professions or {}) do found[name] = true end
         end
     end
@@ -24,10 +24,41 @@ local function Professions()
     return options, found
 end
 
-function View.Create()
-    local frame = CreateFrame("Frame", nil, UI.main)
-    frame:SetPoint("TOPLEFT", 14, -169); frame:SetSize(719, 309)
-    UI.crafting = frame
+function View.Create(parent)
+    if View.frame then return end
+    local frame = W.Panel(parent, 820, 480)
+    frame:SetPoint("TOPLEFT", 15, -68)
+    View.frame = frame
+    frame:SetFrameLevel(parent:GetFrameLevel()+100)
+    frame:EnableMouse(true)
+    local header=W.Text(frame,"Warband recipes",16,C.gold)
+    header:SetPoint("TOPLEFT",12,-12)
+    View.characterButton=W.Button(frame,"All characters",185,27,function(self)
+        local options={{text="All characters",value=false}}
+        for _,character in ipairs(Model.Characters(Vault.db)) do
+            options[#options+1]={text=character.name.." / "..(character.realm or ""),value=character.key}
+        end
+        UI.FilterMenu(self,options,function(value) View.character=value or nil; View.selected=nil; View.Refresh() end)
+    end)
+    View.characterButton:SetPoint("TOPLEFT",12,-40)
+    local search=W.Panel(frame,260,27); search:SetPoint("TOPLEFT",207,-40)
+    View.search=CreateFrame("EditBox",nil,search,"InputBoxTemplate")
+    View.search:SetPoint("TOPLEFT",8,-2); View.search:SetSize(245,23); View.search:SetAutoFocus(false)
+    View.search:SetText(Vault.db.settings.recipeSearch or "")
+    View.searchHint=W.Text(search,"Search recipes",11,C.muted,235); View.searchHint:SetPoint("LEFT",10,0)
+    View.searchHint:SetShown(View.search:GetText()=="")
+    View.search:SetScript("OnTextChanged",function(self) View.searchHint:SetShown(self:GetText()==""); View.query=self:GetText(); Vault.db.settings.recipeSearch=View.query; View.Refresh() end)
+    View.search:SetScript("OnEscapePressed",function(self) self:ClearFocus() end)
+    View.query=Vault.db.settings.recipeSearch or ""
+    View.availableOnly=Vault.db.settings.recipeAvailableOnly==true
+    View.availableButton=W.Button(frame,"",140,27,function()
+        View.availableOnly=not View.availableOnly; Vault.db.settings.recipeAvailableOnly=View.availableOnly; View.Refresh()
+    end)
+    View.availableButton:SetPoint("TOPLEFT",12,-76)
+    View.nativeButton=W.Button(frame,"Native recipes",140,27,function() ForeverCore.ProfessionTabs.ShowNative() end)
+    View.nativeButton:SetPoint("TOPRIGHT",-12,-76)
+    local body=CreateFrame("Frame",nil,frame); body:SetPoint("TOPLEFT",12,-112); body:SetSize(719,309)
+    frame=body
     local left = W.Panel(frame, 258, 309)
     left:SetPoint("TOPLEFT")
     W.Text(left, "Recipes", 14, C.gold):SetPoint("TOPLEFT", 12, -10)
@@ -66,7 +97,6 @@ function View.Create()
         button:SetSize(width,26); button:SetPoint("TOPLEFT",x,-278)
         button:SetText(label); button:SetScript("OnClick",action); return button
     end
-    View.createAll=NativeButton("Create All [0]",132,277,function() View.Submit(View.maximum or 0) end)
     View.decrease=NativeButton("",22,421,function() View.SetQuantity(View.Quantity()-1) end)
     View.decrease:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Up")
     View.decrease:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Down")
@@ -76,57 +106,65 @@ function View.Create()
     View.quantity:SetAutoFocus(false); View.quantity:SetNumeric(true); View.quantity:SetMaxLetters(3)
     View.quantity:SetJustifyH("CENTER")
     View.quantity:SetScript("OnTextChanged",function() View.QuantityChanged() end)
-    View.quantity:SetScript("OnEnterPressed",function(self) self:ClearFocus(); View.Submit(View.Quantity()) end)
+    View.quantity:SetScript("OnEnterPressed",function(self) self:ClearFocus() end)
     View.quantity:SetScript("OnEscapePressed",function(self) self:ClearFocus() end)
     View.increase=NativeButton("",22,501,function() View.SetQuantity(View.Quantity()+1) end)
     View.increase:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Up")
     View.increase:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Down")
     View.increase:SetDisabledTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Disabled")
-    View.craftButton=NativeButton("Create",94,603,function() View.Submit(View.Quantity()) end)
+    View.craftButton=NativeButton("Show recipe",110,587,function() View.ShowNative() end)
+    W.Text(frame,"Plan quantity",11,C.muted):SetPoint("TOPLEFT",277,-285)
     View.materialButton=W.Button(View.detailChild,"Materials",90,25,function()
         if View.currentResult then Vault.Shopping.Open(View.currentResult,math.max(1,View.Quantity())) end
     end)
     View.materialButton:SetPoint("TOPRIGHT",-14,-69)
     View.materialRows = {}
-    UI.professionButton = W.Button(UI.main, "All professions", 172, 31, function(self)
+    View.professionButton = W.Button(View.frame, "All professions", 172, 31, function(self)
         UI.FilterMenu(self, Professions(), function(value)
-            UI.craftProfession = value or nil; View.recipeScroll:SetVerticalScroll(0); UI.RefreshItems()
+            View.profession = value or nil; Vault.db.settings.recipeProfession=View.profession; View.recipeScroll:SetVerticalScroll(0); View.Refresh()
         end)
     end)
-    UI.professionButton:SetPoint("TOPRIGHT", -14, -124)
+    View.professionButton:SetPoint("TOPLEFT", 477, -40)
     View.recipeScroll:HookScript("OnVerticalScroll", function() View.RenderRecipes() end)
-    frame:Hide(); UI.professionButton:Hide()
+    View.freshness=W.Text(View.frame,"",11,C.muted,790); View.freshness:SetPoint("TOPLEFT",12,-435)
+    View.resultCount=W.Text(View.frame,"",11,C.muted,790); View.resultCount:SetPoint("TOPLEFT",12,-456)
+    View.profession=Vault.db.settings.recipeProfession
+    View.frame:Hide()
 end
 
-function View.Quantity() return math.max(0,math.min(999,math.floor(tonumber(View.quantity:GetText()) or 0))) end
+function View.Quantity() return math.max(1,math.min(999,math.floor(tonumber(View.quantity:GetText()) or 1))) end
 function View.UpdateControls()
     local count=View.Quantity()
     View.craftButton:SetEnabled(View.currentResult~=nil and View.currentResult.character.key==Vault.currentKey and count>0)
-    View.createAll:SetEnabled((View.maximum or 0)>0)
-    View.decrease:SetEnabled(count>0); View.increase:SetEnabled(count<999)
+    View.decrease:SetEnabled(count>1); View.increase:SetEnabled(count<999)
     if View.currentResult then View.estimate:SetText(Vault.Shopping.Estimate(Vault.Shopping.Build(View.currentResult,math.max(1,count)),true)) end
 end
 function View.SetQuantity(count)
     View.syncingQuantity=true
-    View.quantity:SetText(tostring(math.max(0,math.min(999,count))))
+    View.quantity:SetText(tostring(math.max(1,math.min(999,count))))
     View.syncingQuantity=false; View.QuantityChanged()
 end
 function View.QuantityChanged()
     if View.syncingDetails or View.syncingQuantity then return end
     if View.currentResult then View.Details(View.currentResult) else View.UpdateControls() end
 end
-function View.Submit(count)
-    if not View.currentResult or count<1 then return end
-    Vault.Scanner.Refresh()
+function View.ShowNative()
     local result=View.currentResult
-    local plan=Crafting.Plan(Crafting.Inventory(Vault.db,time()),result.character,Crafting.ScaleRecipe(result.recipe,count))
-    if plan.bags<1 and not plan.noReagents then
-        Vault.Shopping.Open(result,count)
-        local list=Vault.Shopping.Build(result,count)
-        if list.buyLines>0 then local _,message=Vault.Shopping.Export(list); Vault.Shopping.message:SetText(message) end
-        return
+    if not result or result.character.key~=Vault.currentKey then return end
+    if InCombatLockdown and InCombatLockdown() then View.status:SetText("Leave combat before selecting a recipe."); return end
+    local api=C_TradeSkillUI
+    local info=api and api.GetBaseProfessionInfo and api.GetBaseProfessionInfo()
+    if not Vault.Professions.open or not info or info.professionName~=result.profession.name then
+        View.status:SetText("Open "..result.profession.name.." from your spellbook first."); return
     end
-    local _,message=Vault.Professions.Craft(result,count); View.status:SetText(message)
+    local page=ProfessionsFrame and ProfessionsFrame.CraftingPage
+    local recipeInfo=api.GetRecipeInfo and api.GetRecipeInfo(tonumber(result.recipe.id))
+    if not page or not page.SelectRecipe or not recipeInfo or not recipeInfo.learned then
+        View.status:SetText("Find this recipe in the native profession list first."); return
+    end
+    ForeverCore.ProfessionTabs.ShowNative()
+    page:SelectRecipe(recipeInfo)
+
 end
 
 function View.RenderRecipes()
@@ -159,7 +197,7 @@ end
 function View.Details(result)
     View.syncingDetails=true
     View.currentResult=result
-    for _,control in ipairs({View.craftButton,View.createAll,View.quantity,View.decrease,View.increase,View.materialButton}) do control:SetShown(result~=nil) end
+    for _,control in ipairs({View.craftButton,View.quantity,View.decrease,View.increase,View.materialButton}) do control:SetShown(result~=nil) end
     for _, row in ipairs(View.materialRows) do row:Hide() end
     View.output:SetShown(result~=nil)
     if not result then
@@ -195,11 +233,6 @@ function View.Details(result)
     elseif plan.account > 0 then status = "Collect materials from alts or mail."
     else status = "Materials missing. See Materials for a shopping list." end
     View.status:SetText(status)
-    -- Material capacity is useful even before the profession window is open.
-    -- The craft dispatcher still enforces profession, recipe and game guards.
-    View.maximum=character.key==Vault.currentKey and not plan.incomplete and
-        math.max(0,math.min(999,plan.noReagents and 1 or plan.bags)) or 0
-    View.createAll:SetText("Create All ["..View.maximum.."]")
     if View.quantityKey~=Key(result) then View.quantityKey=Key(result); View.quantity:SetText("1") end
     View.UpdateControls()
     View.estimate:SetText(Vault.Shopping.Estimate(Vault.Shopping.Build(result,math.max(1,View.Quantity())),true))
@@ -253,11 +286,22 @@ function View.Details(result)
 end
 
 function View.Refresh()
+    if not View.frame or not Vault.db then return end
     local _, available = Professions()
-    if UI.craftProfession and not available[UI.craftProfession] then UI.craftProfession = nil end
-    UI.professionButton.label:SetText(UI.craftProfession or "All professions")
-    View.results = Crafting.Recipes(Vault.db, UI.selected, UI.craftProfession, UI.query, UI.visibleKeys)
+    if View.profession and not available[View.profession] then View.profession = nil end
+    View.professionButton.label:SetText(View.profession or "All professions")
+    View.results = Crafting.Recipes(Vault.db, View.character, View.profession, View.query or "")
     View.inventory = Crafting.Inventory(Vault.db, time(), Vault.db.settings.includeMail ~= false)
+    View.characterButton.label:SetText(View.character and Vault.db.characters[View.character] and Vault.db.characters[View.character].name or "All characters")
+    View.availableButton.label:SetText(View.availableOnly and "Bags: craftable" or "All availability")
+    if View.availableOnly then
+        local filtered={}
+        for _,result in ipairs(View.results) do
+            local plan=Crafting.Plan(View.inventory,result.character,result.recipe)
+            if not plan.incomplete and (plan.noReagents or plan.bags>0) then filtered[#filtered+1]=result end
+        end
+        View.results=filtered
+    end
     local selected
     for _, result in ipairs(View.results) do if Key(result) == View.selected then selected = result end end
     selected = selected or View.results[1]
@@ -270,10 +314,10 @@ function View.Refresh()
     table.sort(skills)
     View.recipeEmpty:SetText(#skills > 0 and table.concat(skills, "\n") .. "\n\nOpen a profession to save its recipes." or
         "No professions saved.\nLog into this character to record them.")
-    if UI.query ~= "" and #View.results == 0 then View.recipeEmpty:SetText("No recipes match your search.") end
+    if (View.query or "") ~= "" and #View.results == 0 then View.recipeEmpty:SetText("No recipes match your search.") end
     View.RenderRecipes(); View.Details(selected)
-    UI.freshness:SetText(selected and ("Recipes saved: " .. Model.Age(selected.profession.updated, time()) ..
+    View.freshness:SetText(selected and ("Recipes saved: " .. Model.Age(selected.profession.updated, time()) ..
         (selected.profession.partial and " / Clear profession filters to record more." or "")) or
         "Open each character's professions once to save their recipes.")
-    UI.resultCount:SetText(#View.results .. " recipes / Tools and cooldowns apply.")
+    View.resultCount:SetText(#View.results .. " recipes / Tools and cooldowns apply.")
 end
