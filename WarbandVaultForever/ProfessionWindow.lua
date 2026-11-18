@@ -13,6 +13,90 @@ local function Tabs()
     return tabs and (tabs.minor or 0) >= 2 and tabs or nil
 end
 
+local function Locked()
+    return InCombatLockdown and InCombatLockdown()
+end
+
+local function LastNative(host)
+    local last = host.ProfessionsOverviewTab
+    for _, tab in ipairs(host.rightProfessionTabs or {}) do
+        if tab:IsShown() then last = tab end
+    end
+    return last
+end
+
+-- Keep our page independent of other addons. ForeverCore remains the preferred
+-- tab coordinator when available, but the same small interface works alone.
+local function BuiltInTabs(host)
+    local api = {hidden = {}}
+    function api.Selected() return api.selected end
+    function api.ShowNative()
+        if Locked() then api.pending = true; return end
+        api.pending = nil
+        api.selected = nil
+        if api.spec then api.spec.page:Hide() end
+        for page, alpha in pairs(api.hidden) do page:SetAlpha(alpha) end
+        api.hidden = {}
+        if api.width then host:SetWidth(api.width); api.width = nil end
+    end
+    function api.Select(key)
+        if Locked() or not api.spec then return end
+        if not api.selected then
+            api.width = host:GetWidth()
+            local function conceal(page)
+                if page and page:IsShown() and api.hidden[page] == nil then
+                    api.hidden[page] = page:GetAlpha()
+                    page:SetAlpha(0)
+                end
+            end
+            for _, page in ipairs(host.Pages or {}) do conceal(page) end
+            for _, name in ipairs({"CraftingPage", "BookPage", "SpecPage", "OrdersPage"}) do conceal(host[name]) end
+        end
+        api.selected = key
+        host:SetWidth(api.spec.minWidth or 850)
+        api.spec.page:Show()
+        if api.spec.onSelect then api.spec.onSelect() end
+    end
+    function api.Layout()
+        if Locked() or not api.button then return end
+        local above = LastNative(host)
+        if api.placed and api.above == above then return end
+        api.placed, api.above = true, above
+        api.button:ClearAllPoints()
+        if above then api.button:SetPoint("TOPLEFT", above, "BOTTOMLEFT", 0, -4)
+        else api.button:SetPoint("TOPLEFT", host, "TOPRIGHT", 2, -80) end
+    end
+    function api.Register(key, spec)
+        api.spec = spec
+        local button = W.Button(host, "", 48, 48, function() Window.Open() end)
+        api.button = button
+        local icon = button:CreateTexture(nil, "ARTWORK")
+        icon:SetPoint("TOPLEFT", 5, -5); icon:SetPoint("BOTTOMRIGHT", -5, 5)
+        icon:SetTexture(spec.icon)
+        button:HookScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:AddLine("Warband recipes")
+            GameTooltip:Show()
+        end)
+        button:HookScript("OnLeave", function() GameTooltip:Hide() end)
+        local function nativeClick() if api.selected then api.ShowNative() end end
+        local overview = host.ProfessionsOverviewTab
+        if overview then overview:HookScript("OnMouseUp", nativeClick) end
+        for _, tab in ipairs(host.rightProfessionTabs or {}) do tab:HookScript("OnMouseUp", nativeClick) end
+        if EventRegistry and EventRegistry.RegisterCallback then
+            EventRegistry:RegisterCallback("ProfessionsFrame.TabSet", nativeClick, api)
+            EventRegistry:RegisterCallback("Professions.ProfessionSelected", nativeClick, api)
+        end
+        api.Layout()
+        return button
+    end
+    return api
+end
+
+function Window.ShowNative()
+    if Window.navigation then Window.navigation.ShowNative() end
+end
+
 -- What's Training anchors its right tab at the window's bottom. ForeverCore
 -- stacks registered addon tabs beneath it, putting the last tabs outside the
 -- window. Move that chain's head below the native profession tabs instead.
@@ -93,20 +177,26 @@ end
 
 function Window.Open()
     Window.Attach()
-    if not Window.panel then return false, "Install or update ForeverCore to use Warband recipes in the profession window." end
+    if not Window.panel then return false, "Open a profession from your spellbook first." end
     if not ProfessionsFrame:IsShown() then return false, "Open a profession from your spellbook, then choose the Warband recipes side tab." end
-    Tabs().Select(KEY)
+    if Locked() then return false, "Leave combat before opening Warband recipes." end
+    Window.navigation.Select(KEY)
     Vault.CraftingUI.Refresh()
     return true
 end
 
 function Window.Attach()
-    if Window.panel or not Vault.db or not ProfessionsFrame or not ProfessionsFrame.CraftingPage or not Tabs() then return end
+    if Window.panel then
+        if Window.navigation.pending and not Locked() then Window.ShowNative() end
+        return
+    end
+    if not Vault.db or not ProfessionsFrame or not ProfessionsFrame.CraftingPage then return end
     if InCombatLockdown and InCombatLockdown() then return end
     local host = ProfessionsFrame
+    Window.navigation = Tabs() or BuiltInTabs(host)
     Window.CompactTabs()
     Vault.CraftingUI.Create(host)
-    Tabs().Register(KEY, {icon="Interface\\AddOns\\WarbandVaultForever\\Assets\\Icon",
+    Window.navigation.Register(KEY, {icon="Interface\\AddOns\\WarbandVaultForever\\Assets\\Icon",
         tooltip="Warband recipes",page=Vault.CraftingUI.frame,minWidth=850,
         onSelect=function() Vault.CraftingUI.Refresh() end})
     local page=host.CraftingPage
@@ -134,7 +224,7 @@ function Window.Attach()
     end)
     Window.toggle:SetPoint("TOPLEFT",host,"TOPRIGHT",SIDEBAR_GAP,-15)
     host:HookScript("OnHide",function()
-        if Tabs().Selected()==KEY then Tabs().ShowNative() end
+        if Window.navigation.Selected()==KEY then Window.ShowNative() end
         if Vault.UI.filterMenu then Vault.UI.filterMenu:Hide() end
     end)
     local elapsed=0
@@ -144,6 +234,7 @@ function Window.Attach()
         if elapsed<0.3 then return end
         elapsed=0
         Window.CompactTabs()
+        if Window.navigation.Layout then Window.navigation.Layout() end
         Window.Visibility()
         local id,page=Window.SelectedRecipe()
         local input=page and page.CreateMultipleInputBox
@@ -157,7 +248,7 @@ end
 
 function Window.Visibility()
     if Window.panel then
-        local native=Tabs().Selected()==nil
+        local native=Window.navigation.Selected()==nil
         Window.toggle:SetShown(native)
         Window.panel:SetShown(native and Vault.db.settings.professionMaterials~=false)
     end

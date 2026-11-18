@@ -55,7 +55,7 @@ function View.Create(parent)
         View.availableOnly=not View.availableOnly; Vault.db.settings.recipeAvailableOnly=View.availableOnly; View.Refresh()
     end)
     View.availableButton:SetPoint("TOPLEFT",12,-76)
-    View.nativeButton=W.Button(frame,"Native recipes",140,27,function() ForeverCore.ProfessionTabs.ShowNative() end)
+    View.nativeButton=W.Button(frame,"Native recipes",140,27,function() Vault.ProfessionWindow.ShowNative() end)
     View.nativeButton:SetPoint("TOPRIGHT",-12,-76)
     local body=CreateFrame("Frame",nil,frame); body:SetPoint("TOPLEFT",12,-112); body:SetSize(719,309)
     frame=body
@@ -162,7 +162,7 @@ function View.ShowNative()
     if not page or not page.SelectRecipe or not recipeInfo or not recipeInfo.learned then
         View.status:SetText("Find this recipe in the native profession list first."); return
     end
-    ForeverCore.ProfessionTabs.ShowNative()
+    Vault.ProfessionWindow.ShowNative()
     page:SelectRecipe(recipeInfo)
 
 end

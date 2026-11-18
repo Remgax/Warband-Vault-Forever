@@ -248,6 +248,45 @@ native.toggle.scripts.OnClick(); assert(native.panel:IsShown(),"Materials sideba
 selectedID=999; native.Render(); assert(native.result==nil and not native.materials.enabled,"Unknown recipe clears stale materials")
 ProfessionsFrame:Hide(); assert(not native.Open(),"Saved browser does not force a profession window open")
 ProfessionsFrame:Show()
+-- Standalone install: no ForeverCore, Auctionator, or other addon UI.
+local sharedCore=ForeverCore
+ForeverCore=nil
+ProfessionsFrame=frame()
+ProfessionsFrame:SetWidth(673)
+ProfessionsFrame.Pages={}
+ProfessionsFrame.BookPage=false; ProfessionsFrame.SpecPage=false; ProfessionsFrame.OrdersPage=false
+ProfessionsFrame.ProfessionsOverviewTab=frame()
+ProfessionsFrame.rightProfessionTabs={frame(),frame()}
+ProfessionsFrame.CraftingPage=frame()
+ProfessionsFrame.CraftingPage:SetAlpha(0.8)
+ProfessionsFrame.CraftingPage.SchematicForm={GetRecipeInfo=function() return {recipeID=101} end}
+ProfessionsFrame.CraftingPage.CreateMultipleInputBox=frame()
+ProfessionsFrame.CraftingPage.CreateMultipleInputBox:SetText("2")
+WhatsTrainingCraftingTab=nil
+assert(loadfile(root.."/WarbandVaultForever/CraftingUI.lua"))("WVF",Vault)
+assert(loadfile(root.."/WarbandVaultForever/ProfessionWindow.lua"))("WVF",Vault)
+local standalone=Vault.ProfessionWindow
+standalone.Attach()
+assert(standalone.panel and standalone.navigation.button:IsShown(),"Standalone addon creates profession menus without ForeverCore")
+assert(standalone.result.recipe.id==101 and standalone.count==2,"Standalone native material tracking works")
+standalone.navigation.button.scripts.OnClick()
+assert(Vault.CraftingUI.frame:IsShown() and ProfessionsFrame:GetWidth()==850 and ProfessionsFrame.CraftingPage:GetAlpha()==0,
+    "Standalone tab opens saved recipes and hides native content without closing profession")
+Vault.CraftingUI.nativeButton.scripts.OnClick()
+assert(not Vault.CraftingUI.frame:IsShown() and ProfessionsFrame:GetWidth()==673 and ProfessionsFrame.CraftingPage:GetAlpha()==0.8,
+    "Native recipes restores original width and alpha")
+standalone.Open()
+ProfessionsFrame.rightProfessionTabs[1].hooks.OnMouseUp()
+assert(standalone.navigation.Selected()==nil,"Clicking native profession tabs returns to native content")
+standalone.Open(); ProfessionsFrame.hooks.OnHide()
+assert(not Vault.CraftingUI.frame:IsShown() and ProfessionsFrame:GetWidth()==673,"Closing resets standalone page state")
+local fallbackButton=standalone.navigation.button
+standalone.Attach()
+assert(standalone.navigation.button==fallbackButton,"Repeated attachment does not duplicate standalone tabs")
+InCombatLockdown=function() return true end
+assert(not standalone.Open(),"Standalone navigation waits outside combat")
+InCombatLockdown=previousCombat
+ForeverCore=sharedCore
 Vault.Sync={config={enabled=false,auto=true},status="Not linked."}
 assert(loadfile(root.."/WarbandVaultForever/SyncUI.lua"))("WVF",Vault)
 if not UI.settingsFrame:IsShown() then UI.Settings() end

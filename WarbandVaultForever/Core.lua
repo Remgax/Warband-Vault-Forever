@@ -3,7 +3,7 @@
 local addonName, Vault = ...
 local frame = CreateFrame("Frame")
 local pending, pendingItems = false, false
-Vault.version = "0.3.0-beta.1"
+Vault.version = "0.3.0-beta.2"
 
 local function Print(message)
     DEFAULT_CHAT_FRAME:AddMessage("|cffffd36bWarband Vault:|r " .. message)

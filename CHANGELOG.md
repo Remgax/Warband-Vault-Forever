@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.3.0-beta.2] - 2026-11-18
+
+- Fix missing profession menus when Warband Vault Forever is the only enabled addon.
+- Add a built-in Warband recipes tab and materials panel navigation, keeping ForeverCore optional.
+- Restore native profession content and window width when returning to native recipes, selecting a profession tab, or closing the window.
+- Keep navigation changes outside combat and prevent duplicate tabs on repeated attachment.
+- Cover standalone operation and the optional ForeverCore integration in UI regression checks.
+- Update setup descriptions to state that no other addon is required for profession tools.
+
 ## [0.3.0-beta.1] - 2026-11-18
 
 First beta release, promoting the tested 0.3.0 alpha feature set.
