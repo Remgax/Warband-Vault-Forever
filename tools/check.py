@@ -41,6 +41,17 @@ def main():
             assert (ADDON / line.strip()).is_file(), f"Missing TOC file: {line}"
     assert f'Vault.version = "{version()}"' in (ADDON / "Core.lua").read_text()
     assert f"## [{version()}]" in (ROOT / "CHANGELOG.md").read_text()
+    # Bindings.xml is auto-loaded by WoW's binding loader, not its UI XML parser.
+    assert "bindings.xml" not in {line.strip().lower() for line in toc.splitlines()}
+    bindings = ET.parse(ADDON / "Bindings.xml").getroot()
+    assert bindings.tag == "Bindings" and len(bindings) == 1
+    binding = bindings[0]
+    assert binding.tag == "Binding"
+    assert binding.attrib == {"name": "WVF_TOGGLE", "header": "WVF_HEADER"}
+    compile_lua(binding.text, "WVF_TOGGLE binding")
+    core_text = (ADDON / "Core.lua").read_text()
+    assert 'BINDING_HEADER_WVF_HEADER = "Warband Vault Forever"' in core_text
+    assert 'BINDING_NAME_WVF_TOGGLE = "Open character vault"' in core_text
     for path in ADDON.glob("*.xml"):
         ET.parse(path)
     for name, size in (("Icon.tga", (128, 128)), ("Header.tga", (1024, 256)),
@@ -62,6 +73,9 @@ def main():
             names = archive.namelist()
             assert "WarbandVaultForever/WarbandVaultForever.toc" in names
             assert "WarbandVaultForever/Assets/Icon.tga" in names
+            assert "WarbandVaultForever/Bindings.xml" in names
+            packed_toc = archive.read("WarbandVaultForever/WarbandVaultForever.toc").decode("utf-8")
+            assert "bindings.xml" not in packed_toc.lower()
             assert all(n.startswith("WarbandVaultForever/") for n in names)
             assert not any(re.search(r"WTF|SavedVariables|\.git/|tests/", n) for n in names)
         upload_metadata = metadata(version(), "123,456")

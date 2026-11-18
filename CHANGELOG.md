@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.2.0-alpha.5] - 2026-11-18
+
+- Fix keybinding XML warnings by leaving Bindings.xml to the dedicated binding loader.
+- Validate binding registration, action syntax and packaged files in CI.
+
 ## [0.2.0-alpha.4] - 2026-11-17
 
 - Show every recorded material holder and bag/bank location, including transfer restrictions.
