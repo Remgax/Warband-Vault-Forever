@@ -1053,6 +1053,7 @@ function UI.Minimap()
     texture:AddMaskTexture(mask)
     local border=button:CreateTexture(nil,"OVERLAY")
     border:SetAllPoints(); border:SetTexture(ART .. "SlotRing")
+    Skins.Tint(border,C.gold)
     button.icon=texture; button.mask=mask; button.border=border
     button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
     button:RegisterForDrag("LeftButton")

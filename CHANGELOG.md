@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.3.0-beta.5] - 2026-11-19
+
+- Tint the minimap icon ring gold instead of leaving the grayscale texture white, and keep its color in sync when changing skins.
+
 ## [0.3.0-beta.4] - 2026-11-19
 
 - Keep the Original Satchel skin and add Classic Blizzard and Minimal Dark skins using native client textures, plain panels and compact square item grids.
