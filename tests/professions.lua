@@ -3,9 +3,9 @@ local V={}; local function load(name) assert(loadfile(root.."/WarbandVaultForeve
 load("Model"); load("Crafting")
 local M,F=V.Model,V.Crafting
 local db=M.Open(); V.db=db
-local a=M.Character(db,"3:a",{name="Aeris",realm="Home",faction="Alliance",class="MAGE",className="Mage",level=20})
-local b=M.Character(db,"3:b",{name="Borin",realm="Home",faction="Alliance",class="DRUID",className="Druid",level=30})
-local c=M.Character(db,"3:c",{name="Cora",realm="Away",faction="Alliance",class="MAGE",className="Mage",level=40})
+local a=M.Character(db,"3:a",{name="Aeris",ruleset="Home",faction="Alliance",class="MAGE",className="Mage",level=20})
+local b=M.Character(db,"3:b",{name="Borin",ruleset="Home",faction="Alliance",class="DRUID",className="Druid",level=30})
+local c=M.Character(db,"3:c",{name="Cora",ruleset="Away",faction="Alliance",class="MAGE",className="Mage",level=40})
 a.professions={Alchemy={name="Alchemy",recipes={}}}; b.professions={Cooking={name="Cooking",recipes={}}}
 local function item(id,count,bound) return {id=id,count=count,bound=bound,name="Reagent "..id,quality=1} end
 M.Save(a,"bags",{item(1,1,false)},16,100)
@@ -24,7 +24,15 @@ assert(bankPlan.requirements[1].bank==4 and bankPlan.requirements[1].owners[1].r
     "Plan identifies the character with bank materials")
 local altPlan=F.Plan(index,a,{reagents={{id=2,count=10}}})
 assert(altPlan.account==1 and altPlan.requirements[1].total==11,
-    "Alt bags and valid mail count; expired/COD mail and other realms do not")
+    "Alt bags and valid mail count; expired/COD mail and other rulesets do not")
+local previousRuleset=b.ruleset
+b.realm="DifferentSurname"; a.realm="AnotherSurname"
+assert(F.Plan(index,a,{reagents={{id=2,count=10}}}).account==1,
+    "Surnames in legacy fields must not prevent same-ruleset transfers")
+b.ruleset=nil
+assert(F.Plan(index,a,{reagents={{id=2,count=10}}}).account==0,
+    "Legacy records with unknown rulesets cannot silently supply transferable materials")
+b.ruleset=previousRuleset
 assert(F.Plan(F.Inventory(db,100,false),a,{reagents={{id=2,count=10}}}).account==0,
     "Mailbox material setting is respected")
 assert(F.Plan(index,a,{reagents={{id=3,count=1}}}).account==0, "Soulbound alt materials are not transferable")
@@ -33,8 +41,8 @@ assert(#repeated.requirements==1 and repeated.personal==0 and repeated.account==
     "Repeated reagent requirements are combined before checking stock")
 assert(#M.Characters(db,"name",{class="MAGE",minLevel=30})==1, "Class and level filters combine")
 assert(M.Characters(db,"name",{profession="Cooking"})[1]==b, "Profession filter")
-assert(#M.Characters(db,"name",{query="aeris alchemy",realm="Home",faction="Alliance"})==1,
-    "Character search includes professions and combines with realm/faction")
+assert(#M.Characters(db,"name",{query="aeris alchemy",ruleset="Home",faction="Alliance"})==1,
+    "Character search includes professions and combines with ruleset/faction")
 assert(#M.Find(db,nil,"all","",nil,{[a.key]=true})==2, "Item views follow allowed character scope")
 local unknown=F.Plan(index,a,{reagents={{count=1,choices={{id=1},{id=2}}}}})
 assert(unknown.incomplete and unknown.account==0, "Alternative reagents never produce a false ready result")

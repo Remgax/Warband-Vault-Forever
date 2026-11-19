@@ -13,6 +13,7 @@ Vault.ProfessionWindow={Attach=counted("professionAttach"), Open=function() call
 Vault.UI.ActionBar=counted("actionbar")
 Vault.UI.StopEffects=counted("stopEffects")
 Vault.UI.RefreshSettings=counted("settings")
+Vault.UI.Help=counted("help")
 CreateFrame=function()
     local f={events={}}
     function f:RegisterEvent(event) self.events[event]=true end
@@ -64,4 +65,11 @@ event("PLAYER_REGEN_ENABLED")
 assert(calls.professionAttach>=2,"Deferred profession integration retries after combat")
 WarbandVaultForever_Toggle()
 assert(calls.toggle==2, "Global key binding invokes UI")
+SlashCmdList.WARBANDVAULTFOREVER("help")
+assert(calls.help==1, "Help command opens the full guide")
+local beforeLogout=calls.refresh
+event("BAG_UPDATE_DELAYED")
+event("PLAYER_LOGOUT")
+flush()
+assert(calls.refresh==beforeLogout, "Logout never rescans unavailable APIs or runs a queued scan")
 print("PASS: lifecycle, debounce, bank/mail guards, item load, slash commands, and key binding")

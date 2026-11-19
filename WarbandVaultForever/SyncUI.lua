@@ -31,7 +31,7 @@ function View.Open()
         local close=CreateFrame("Button",nil,panel,"UIPanelCloseButton")
         close:SetPoint("TOPRIGHT",-4,-4); close:SetScript("OnClick",function() panel:Hide() end)
         W.Text(panel,"Account sync",22,W.colors.gold):SetPoint("TOPLEFT",22,-20)
-        W.Text(panel,"Pair once for all characters on two accounts. Both accounts need this version\nand must be online on the same realm and faction to exchange updates.",12,nil,535):SetPoint("TOPLEFT",22,-57)
+        W.Text(panel,"Pair once for all characters on two accounts. Both accounts need this version\nand must be online on the same ruleset and faction to exchange updates.",12,nil,535):SetPoint("TOPLEFT",22,-57)
         W.Text(panel,"1. On the first account, create a code. Copy it privately to the other account.",12,nil,530):SetPoint("TOPLEFT",22,-105)
         local code=Input(panel,22,-130,360); View.code=code
         W.Button(panel,"Create / show code",166,30,function()
@@ -64,7 +64,7 @@ function View.Open()
             end)
             View[field]=check
         end
-        W.Text(panel,"Bags, banks, equipment, and gold are shared. Bank contents update at a banker.\nKeep the code private. Data uses WoW messages; it is authenticated, not encrypted.\nUnlink removes this account's imported records and pairing code.",11,W.colors.muted,535):SetPoint("TOPLEFT",22,-487)
+        W.Text(panel,"Bags, banks and gold are shared. Bank contents update at a banker.\nKeep the code private. Data uses WoW messages; it is authenticated, not encrypted.\nUnlink removes this account's imported records and pairing code.",11,W.colors.muted,535):SetPoint("TOPLEFT",22,-487)
         W.Button(panel,"Sync now",120,30,S.Now):SetPoint("BOTTOMLEFT",22,20)
         W.Button(panel,"Unlink account",145,30,function()
             S.Unlink(); View.code:SetText(""); View.input:SetText("")

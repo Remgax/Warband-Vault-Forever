@@ -66,7 +66,7 @@ function Crafting.Inventory(db, now, includeMail)
 end
 
 local function SameMailRoute(a, b)
-    return a.realm == b.realm and a.faction == b.faction
+    return Vault.Model.SameRuleset(a, b) and a.faction == b.faction
         and a.key:match("^([^:]+)") == b.key:match("^([^:]+)")
 end
 
@@ -97,7 +97,7 @@ function Crafting.Plan(index, character, recipe)
             local route = own or SameMailRoute(owner.character, character)
             local available = own and (owner.bags + owner.bank + owner.mail) or route and owner.transferable or 0
             demand.owners[#demand.owners + 1] = {record = owner, available = available,
-                otherRealm = owner.character.realm ~= character.realm,
+                otherRuleset = not Vault.Model.SameRuleset(owner.character, character),
                 otherFaction = owner.character.faction ~= character.faction}
             total = total + available
             if route and not own and owner.unknown > 0 then plan.uncertain = true end

@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+- Preserve the last live bags and wallet at logout; cancel queued scans during logout and retain bags when their capacity is unavailable (#1).
+- Keep Forever's first name and surname together. Store the separate server/ruleset label from GetRealmName and use it for filters, transfer checks and synced metadata instead of the surname (#3).
+- Preserve older records and update identity metadata when their owner logs in. Unknown rulesets do not count as transferable supplies until rescanned.
+- Remove equipment scanning, the Equipment tab and equipped items from storage search, totals and ownership tooltips; leave old cached equipment intact (#2).
+- Add confirmed clearing of all saved character records and cached shopping plans in Settings. Keep preferences and pairing, pause account sync, discard in-flight transfers and cancel queued scans (#4).
+- Add a scrollable Help guide and a Credits button, including third-party license attribution (#5).
+- Test fresh character sessions with a serialization boundary, retained bags/gold/bank/recipes, surname-independent transfer checks, sync metadata, and cancellation/confirmation of record clearing. Live client validation remains required.
+
 ## [0.3.0-beta.2] - 2026-11-18
 
 - Fix missing profession menus when Warband Vault Forever is the only enabled addon.

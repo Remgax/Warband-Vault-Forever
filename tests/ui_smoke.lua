@@ -298,3 +298,25 @@ assert(UI.settingsFrame:IsShown(),"Closing sync returns to Settings")
 print("PASS: satchel UI, close-button events, sound/effects settings, 2000-item scrolling, and bag-bar shortcut")
 
 assert(UI.portrait.mask and UI.portrait.rim,"Character header uses a circular portrait mask and ring")
+assert(UI.tabs.equipment==nil, "Storage views have no equipment tab")
+UI.helpButton.scripts.OnClick()
+assert(UI.infoFrame:IsShown() and UI.infoTitle.text=="Help" and UI.infoText.text:find("ACCOUNT SYNC",1,true),
+    "Help opens a scrollable guide with account-sync instructions")
+UI.creditsButton.scripts.OnClick()
+assert(UI.infoTitle.text=="Credits" and UI.infoText.text:find("Egor Skriptunoff",1,true),
+    "Credits identifies the addon author and upstream crypto library")
+local clearCalls=0
+Vault.ClearRecords=function() clearCalls=clearCalls+1; Vault.Model.ClearRecords(Vault.db); UI.RecordsCleared() end
+local records=Vault.db.characters
+UI.clearButton.scripts.OnClick()
+assert(UI.clearFrame:IsShown() and clearCalls==0 and Vault.db.characters==records,
+    "Opening confirmation must never clear saved data")
+UI.clearCancel.scripts.OnClick()
+assert(not UI.clearFrame:IsShown() and clearCalls==0 and Vault.db.characters==records,
+    "Cancel leaves records untouched")
+UI.clearButton.scripts.OnClick(); UI.clearAccept.scripts.OnClick()
+assert(clearCalls==1 and next(Vault.db.characters)==nil and not UI.clearFrame:IsShown(),
+    "Confirm invokes record clearing exactly once")
+assert(Vault.CraftingUI.currentResult==nil and Vault.ProfessionWindow.result==nil,
+    "Clearing also removes stale profession selections")
+print("PASS: storage-only tabs, Help/Credits and cancellable record clearing")

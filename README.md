@@ -5,7 +5,7 @@
 
 ![A gold vault door, blue light, coins, and an inventory ledger](docs/images/vault-banner.png)
 
-Browse your characters' saved bags, banks, equipment, mail, and gold in
+Browse your characters' saved bags, banks, mail, and gold in
 **World of Warcraft: Forever** (Interface **16001**).
 
 **Current beta: 0.3.0-beta.2.** Inventory tracking, account sync, and the new
@@ -14,16 +14,16 @@ profession-window tools are available for testing. Report problems through
 
 ## Features
 
-- Character roster with class colors, levels, realm names, gold, and name/gold sorting.
-- Character-specific and all-character views with bags, bank, equipment, and mail tabs.
-- Search by item name, ID, character, realm, or item type; filter by item quality.
+- Character roster with class colors, levels, rulesets, gold, and name/gold sorting.
+- Character-specific and all-character views with bags, bank and mail tabs.
+- Search by item name, ID, character, ruleset, or item type; filter by item quality.
 - Item tooltips show recorded owners, quantities, location, and snapshot time.
 - A leather satchel interface with stitched edges, brass fittings, an opening
   animation, and item hover glow. Sound and effects can be turned off separately.
 - WoW's backpack-opening sound and a vault button beside the action-bar bags.
 - Shift-click item links, a movable window, adjustable scale, and a minimap button.
 - Original artwork and built-in profession tools. No other addon is required.
-- Search characters and filter by class, profession, realm, faction, and level.
+- Search characters and filter by class, profession, ruleset, faction, and level.
 - **Warband recipes** inside the profession window: browse saved characters and
   learned recipes, search, filter by profession or bag availability, and plan quantities.
 - **Warband materials** beside native recipes: bags, banks, alt holdings, saved
@@ -61,13 +61,28 @@ The addon can only record the character currently logged in. Recorded characters
 remain browsable while offline; bank and mail records refresh when their owner
 opens those locations. Saved times distinguish older records from current data.
 
-Local records belong to this WoW account, across realms. Optional account sync
-exchanges records with a paired account on the same realm and faction. WoW writes them
+Local records belong to this WoW account, across rulesets. Optional account sync
+exchanges records with a paired account on the same ruleset and faction. WoW writes them
 to `WarbandVaultForever.lua` under the account's SavedVariables when you log out
 or reload. Characters that have never loaded the addon cannot appear yet.
 
 Gold totals include wallets; mailbox gold is shown separately.
 Mailbox records mark partial inboxes and retain expiration estimates.
+
+Forever returns first name and surname separately from `UnitFullName`; both
+belong to the character name. The separate `GetRealmName()` server label is
+stored as the ruleset identifier, without guessing a ruleset from a surname or
+parsing undocumented parts of the label. Old records are retained; log into
+each character to refresh its full name and ruleset. Until refreshed, an unknown
+ruleset is shown explicitly and that alt's supplies do not count as transferable.
+
+**Settings → Clear saved records** removes all local and imported character
+records (including gold, inventories and recipes) and the cached shopping plan
+after confirmation. Preferences and pairing are retained; account sync is
+paused to prevent immediate reimport. Future game events can record the current
+character again. Enable sync explicitly to resume imports. This cannot be undone.
+Equipped items are no longer scanned or included in storage views; legacy
+equipment snapshots remain saved without being displayed.
 
 This beta does not track shared account banks, guild banks, auctions,
 or currencies.
@@ -90,12 +105,14 @@ or currencies.
 
 Assign **Open character vault** under **Warband Vault Forever** in WoW's key
 binding settings. Click the X or press Escape to close the window. Help contains
-the setup instructions. Settings is beside Refresh at the bottom of the window.
+the setup instructions, material/sync guidance and troubleshooting; `/wvf help`
+opens the same scrollable guide. Credits is beside Help. Settings is beside
+Refresh at the bottom of the window.
 
 Open each character's professions to save recipes. Clear profession filters and
 expand categories on legacy profession windows to record all visible recipes.
 Visit each bank to update its material counts. Soulbound items on alts, expired
-mail, COD attachments, and supplies on other realms/factions do not count as
+mail, COD attachments, and supplies on other rulesets/factions do not count as
 transferable materials. Tools, cooldowns, and optional reagent choices still
 need checking in the profession window.
 
@@ -125,17 +142,17 @@ and coverage are shown when available. Update old character records before buyin
 ## Link another account
 
 1. Install the same release on both accounts and log into both at once.
-2. Keep their active characters on the same realm and faction.
+2. Keep their active characters on the same ruleset and faction.
 3. On the first account, open **Settings → Account sync → Create / show code**.
 4. Copy the code privately. On the other account, paste it into Account sync and click **Pair account**.
 5. On the first account, click **Approve account**. Recorded characters now sync both ways.
 
 Pairing belongs to the account, so switching alts needs no new pairing. Each
-account sends only its own recorded characters. Bags, character banks, equipment,
+account sends only its own recorded characters. Bags, character banks
 and wallet gold are shared; professions/recipes and mailbox records have sharing
 switches. Imported characters have a `+` in the roster and a Linked account label.
 Their supplies are included in crafting checks subject to normal binding and
-realm/faction rules.
+ruleset/faction rules.
 
 Updates run in the background while both accounts are online. Transfers use
 small, throttled messages and may take time for large inventories or recipe lists.
@@ -153,7 +170,7 @@ uses a channel derived from the pairing code; records travel through addon
 whispers authenticated with HMAC-SHA256. They are not encrypted. The generated
 code uses WoW's random source, not an operating-system password generator; keep
 it private and treat it as an inventory-sharing code. This beta supports one
-paired account per account. Cross-realm and cross-faction discovery are not supported.
+paired account per account. Cross-ruleset and cross-faction discovery are not supported.
 
 Tests simulate two accounts, packet loss, character switching, invalid input,
 and offline caching. Two-account reconnect and transfer testing in-game

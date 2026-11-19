@@ -9,7 +9,7 @@ local C = {
     gold = {0.79, 0.61, 0.30}, text = {0.94, 0.89, 0.78},
     muted = {0.72, 0.65, 0.54}, blue = {0.42, 0.69, 0.81},
 }
-local labels = {all = "All items", bags = "Bags", bank = "Bank", equipment = "Equipment", mail = "Mailbox"}
+local labels = {all = "All items", bags = "Bags", bank = "Bank", mail = "Mailbox"}
 local COLUMNS, CELL, VIEW_HEIGHT = 10, 60, 210
 UI.source, UI.sort, UI.query = "bags", "name", ""
 
@@ -126,6 +126,8 @@ local function FilterOptions(field, title)
     for _, character in ipairs(Vault.Model.Characters(Vault.db)) do
         if field == "profession" then
             for name in pairs(character.professions or {}) do values[name] = name end
+        elseif field == "ruleset" then
+            local value = Model.Ruleset(character); values[value] = value
         elseif character[field] then values[character[field]] = field == "class" and character.className or character[field] end
     end
     for value, text in pairs(values) do choices[#choices + 1] = {text = text, value = value} end
@@ -197,7 +199,7 @@ local function ItemTooltip(button)
         GameTooltip:AddLine(" ")
         GameTooltip:AddLine("Owned by", unpack(C.gold))
         for _, owner in ipairs(owners) do
-            GameTooltip:AddDoubleLine(owner.character.name .. " - " .. owner.character.realm,
+            GameTooltip:AddDoubleLine(owner.character.name .. " - " .. Model.Ruleset(owner.character),
                 tostring(owner.count), 0.8, 0.85, 0.9, 1, 1, 1)
         end
     end
@@ -243,16 +245,108 @@ function UI.Close()
     if UI.frame then UI.frame:Hide() end
 end
 
-function UI.Help(owner)
-    GameTooltip:SetOwner(owner, "ANCHOR_TOP")
-    GameTooltip:AddLine("Warband Vault", unpack(C.gold))
-    GameTooltip:AddLine("Log into each character to save their bags and gold.", 1, 1, 1)
-    GameTooltip:AddLine("Visit their bank and mailbox to save those items.", 1, 1, 1)
-    GameTooltip:AddLine("Choose a character, then a storage tab. Search by item or owner.", 1, 1, 1)
-    GameTooltip:AddLine("Hover an item for details. Shift-click to link it.", 1, 1, 1)
-    GameTooltip:AddLine("Drag the title to move the window. Escape closes it.", unpack(C.muted))
-    GameTooltip:AddLine("Offline portraits show race and gender. Gold totals count wallets.", unpack(C.muted))
-    GameTooltip:Show()
+local helpText = [[GETTING STARTED
+Log into each character once to record bags and wallet gold. Open that character's bank and mailbox to record them. Offline records are snapshots, not live inventory. Saved times show their age. Log out normally or use /reload so WoW writes the data to disk.
+
+FINDING ITEMS
+Choose All characters or a character, then All items, Bags, Bank or Mailbox. Search by item name, ID, full character name or ruleset; combine quality and character filters. Hover for details and recorded owners. Shift-click to link an item. Equipped gear is not included in these storage views.
+
+PROFESSIONS AND MATERIALS
+Open each profession to save learned recipes. On legacy windows, clear filters and expand categories. Warband recipes browses saved recipes; Show recipe returns your own recipe to the native window. Warband materials shows bags, banks and eligible alt supplies for the selected quantity. Collect stored materials first; craft using the game's Create controls. Soulbound alt items, other or unknown rulesets, other factions, expired mail and COD attachments cannot supply a transfer.
+
+AUCTIONATOR
+Materials can create a shopping list for missing quantities when Auctionator is available. Estimates use cached prices and may be partial or stale. This addon never buys items automatically.
+
+ACCOUNT SYNC
+In Settings > Account sync, create a private code, enter it on the other account, then approve the request on the account that created the code. Both accounts need matching addon versions and must be reachable on the same ruleset and faction. Sharing is optional; messages are authenticated, not encrypted. Keep pairing codes private. Unlink removes imported records and preserves your own characters.
+
+SETTINGS AND DATA
+Settings controls scale, shortcuts, sound and effects. Clear saved records removes all local and imported character snapshots, gold, recipes and the cached shopping plan after confirmation. Preferences and pairing are kept; sync is paused. Later game events can record the current character again. Enable sync yourself to resume imports. Old records without a known ruleset need a fresh login before their supplies can be treated as transferable.
+
+COMMANDS
+/wvf opens or closes the vault; /wvf scan refreshes accessible records; /wvf settings opens Settings; /wvf sync opens account sync; /wvf crafting opens saved recipes in an open profession window; /wvf minimap and /wvf actionbar toggle shortcuts; /wvf sound and /wvf effects toggle sound and motion; /wvf resetui resets position and scale; /wvf help opens this guide.
+
+LIMITS AND TROUBLESHOOTING
+Only the logged-in character can be scanned. Gold totals count wallets; mailbox gold is separate. Guild banks, auctions and currencies are not tracked. If something is missing, clear filters, log into its owner and visit their bank or mailbox. Report addon version, client build, reproduction steps and Lua errors; never publish pairing codes or private SavedVariables.]]
+
+local creditsText = [[Warband Vault Forever
+Created by Remgax.
+
+CODE AND ORIGINAL ARTWORK
+Copyright 2026 Remgax. Distributed under GNU GPLv3 (GPL-3.0-only). The repository and release archive include the license. Original generated artwork is included under the same license.
+
+SHA256 AND HMAC
+Libs/SHA.lua adapts pure_lua_SHA v12 by Egor Skriptunoff, copyright 2018-2022, under the MIT license. The original license is retained in that file.
+
+OPTIONAL INTEGRATIONS
+Auctionator provides shopping-list and cached-price APIs. ForeverCore profession tabs are used when available. Neither addon is required for inventory tracking or saved recipe browsing.
+
+WORLD OF WARCRAFT
+Blizzard game assets are referenced at runtime and are not redistributed with this addon. This is an independent addon project.
+
+SOURCE AND BUG REPORTS
+https://github.com/Remgax/Warband-Vault-Forever]]
+
+local function Info(title, text)
+    if not UI.infoFrame then
+        local panel = Panel(UIParent, 650, 550, nil, "WarbandVaultForeverHelp")
+        UI.infoFrame = panel
+        panel:SetPoint("CENTER"); panel:SetFrameStrata("DIALOG"); panel:SetClampedToScreen(true)
+        table.insert(UISpecialFrames, "WarbandVaultForeverHelp")
+        UI.infoTitle = Text(panel, "", 22, C.gold)
+        UI.infoTitle:SetPoint("TOPLEFT", 22, -20)
+        local close = CreateFrame("Button", nil, panel, "UIPanelCloseButton")
+        close:SetPoint("TOPRIGHT", -4, -4); close:SetScript("OnClick", function() panel:Hide() end)
+        UI.infoScroll, UI.infoChild = Scroll(panel, 22, -64, 582, 410)
+        UI.infoText = Text(UI.infoChild, "", 12, C.text, 574)
+        UI.infoText:SetPoint("TOPLEFT"); UI.infoText:SetWordWrap(true)
+        Button(panel, "Done", 90, 30, function() panel:Hide() end):SetPoint("BOTTOMRIGHT", -22, 20)
+    end
+    UI.infoTitle:SetText(title); UI.infoText:SetText(text)
+    UI.infoChild:SetHeight(math.max(410, UI.infoText:GetStringHeight() + 20))
+    UI.infoScroll:SetVerticalScroll(0); UI.infoFrame:Show()
+end
+
+function UI.Help()
+    Info("Help", helpText)
+end
+
+function UI.Credits()
+    Info("Credits", creditsText)
+end
+
+function UI.RecordsCleared()
+    UI.selected = nil; UI.results = {}; UI.visibleKeys = {}
+    if UI.filterMenu then UI.filterMenu:Hide() end
+    if Vault.Shopping then
+        Vault.Shopping.result = nil
+        if Vault.Shopping.frame then Vault.Shopping.frame:Hide() end
+    end
+    if Vault.CraftingUI then
+        Vault.CraftingUI.character = nil; Vault.CraftingUI.selected = nil
+        Vault.CraftingUI.Refresh()
+    end
+    if Vault.ProfessionWindow then Vault.ProfessionWindow.Refresh() end
+    UI.Refresh()
+end
+
+function UI.ConfirmClear()
+    if not UI.clearFrame then
+        local panel = Panel(UIParent, 520, 260, nil, "WarbandVaultForeverClear")
+        UI.clearFrame = panel
+        panel:SetPoint("CENTER"); panel:SetFrameStrata("DIALOG"); panel:SetFrameLevel(200)
+        panel:SetClampedToScreen(true)
+        table.insert(UISpecialFrames, "WarbandVaultForeverClear")
+        Text(panel, "Clear saved records?", 22, C.gold):SetPoint("TOPLEFT", 22, -20)
+        Text(panel, "Remove ALL local and imported character inventories, gold, recipes and the cached shopping plan?\n\nPreferences and pairing are kept. Account sync will pause. Future game events can record the current character again. This cannot be undone.", 12, C.text, 470):SetPoint("TOPLEFT", 22, -64)
+        UI.clearAccept = Button(panel, "Clear saved records", 180, 30, function()
+            panel:Hide(); Vault.ClearRecords()
+        end)
+        UI.clearAccept:SetPoint("BOTTOMLEFT", 22, 22)
+        UI.clearCancel = Button(panel, "Cancel", 100, 30, function() panel:Hide() end)
+        UI.clearCancel:SetPoint("BOTTOMRIGHT", -22, 22)
+    end
+    UI.clearFrame:Show()
 end
 
 function UI.Create()
@@ -353,7 +447,7 @@ function UI.Create()
     UI.filterPanel = CreateFrame("Frame", nil, roster)
     UI.filterPanel:SetPoint("TOPLEFT", 12, -112); UI.filterPanel:SetSize(230, 123)
     UI.filterControls = {}
-    for i, definition in ipairs({{"class", "Any class"}, {"profession", "Any profession"}, {"realm", "Any realm"}, {"faction", "Any faction"}}) do
+    for i, definition in ipairs({{"class", "Any class"}, {"profession", "Any profession"}, {"ruleset", "Any ruleset"}, {"faction", "Any faction"}}) do
         local field, title = definition[1], definition[2]
         local button = Button(UI.filterPanel, title, 111, 28, function(self)
             UI.FilterMenu(self, FilterOptions(field, title), function(value)
@@ -394,13 +488,13 @@ function UI.Create()
     UI.characterGold = Text(main, "", 13, C.gold)
     UI.characterGold:SetPoint("TOPRIGHT", -16, -18)
     UI.tabs = {}
-    local tabKeys = {"all", "bags", "bank", "equipment", "mail"}
+    local tabKeys = {"all", "bags", "bank", "mail"}
     for i, key in ipairs(tabKeys) do
         local source = key
-        local button = Button(main, labels[key], 136, 30, function()
+        local button = Button(main, labels[key], 172, 30, function()
             UI.source = source; UI.itemsScroll:SetVerticalScroll(0); UI.Refresh()
         end)
-        button:SetPoint("TOPLEFT", 14 + (i - 1) * 145, -80)
+        button:SetPoint("TOPLEFT", 14 + (i - 1) * 183, -80)
         UI.tabs[key] = button
     end
 
@@ -456,11 +550,11 @@ function UI.Create()
     UI.resultCount = Text(main, "", 11, C.muted, 716)
     UI.resultCount:SetPoint("BOTTOMLEFT", 17, 14)
 
-    local help = Button(f, "Help", 64, 30, UI.Help)
-    help:SetPoint("BOTTOMLEFT", 20, 22)
-    help:SetScript("OnEnter", UI.Help)
-    help:SetScript("OnLeave", function() GameTooltip:Hide() end)
-    Text(f, "Hover for details. Shift-click to link.", 11, C.muted, 292):SetPoint("BOTTOMLEFT", 98, 31)
+    UI.helpButton = Button(f, "Help", 64, 30, UI.Help)
+    UI.helpButton:SetPoint("BOTTOMLEFT", 20, 22)
+    UI.creditsButton = Button(f, "Credits", 76, 30, UI.Credits)
+    UI.creditsButton:SetPoint("BOTTOMLEFT", 92, 22)
+    Text(f, "Hover for details. Shift-click to link.", 11, C.muted, 270):SetPoint("BOTTOMLEFT", 182, 31)
     Button(f, "Refresh", 100, 30, function() Vault.Scanner.Refresh() end):SetPoint("BOTTOMRIGHT", -22, 22)
     f:Hide()
 end
@@ -625,7 +719,7 @@ function UI.Refresh()
         button:SetPoint("TOPLEFT", 0, -(i - 1) * 88)
         button.name:SetText(character.name .. (character.key == Vault.currentKey and " *" or "") .. (character.remoteAccount and " +" or ""))
         button.name:SetTextColor(unpack(ClassColor(character)))
-        button.meta:SetText(character.level .. " " .. (character.className or character.class) .. "\n" .. character.realm)
+        button.meta:SetText(character.level .. " " .. (character.className or character.class) .. "\n" .. Model.Ruleset(character))
         button.money:SetText(Model.Money(character.money))
         DrawPortrait(button.face, character)
         button:SetBackdropColor(unpack(UI.selected == character.key and {0.38, 0.25, 0.14} or C.stone))
@@ -641,7 +735,7 @@ function UI.Refresh()
         UI.name:SetText(character.name)
         UI.name:SetTextColor(unpack(ClassColor(character)))
         UI.details:SetText(character.level .. " " .. character.raceName .. " " .. character.className ..
-            " / " .. character.realm .. " / " .. character.faction .. (character.remoteAccount and " / Linked account" or ""))
+            " / " .. Model.Ruleset(character) .. " / " .. character.faction .. (character.remoteAccount and " / Linked account" or ""))
         UI.characterGold:SetText(Model.Money(character.money))
         DrawPortrait(UI.portrait, character)
     else
@@ -744,6 +838,8 @@ function UI.Settings()
         end
         Text(panel, "Set sound or effects to 0% to turn them off.", 11, C.muted, 385):SetPoint("TOPLEFT", 25, -387)
         Button(panel, "Account sync", 150, 30, function() Vault.SyncUI.Open() end):SetPoint("TOPLEFT", 25, -414)
+        UI.clearButton = Button(panel, "Clear saved records", 205, 30, UI.ConfirmClear)
+        UI.clearButton:SetPoint("TOPRIGHT", -25, -414)
         Button(panel, "Reset window", 124, 30, function()
             Vault.db.settings.position = nil; Vault.db.settings.scale = 1
             if UI.frame then UI.ApplyPosition() end

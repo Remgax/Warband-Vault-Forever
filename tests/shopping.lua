@@ -2,7 +2,7 @@ local root=...
 time=function() return 10000 end
 local v={}; for _,f in ipairs({"Model.lua","Crafting.lua","Shopping.lua","Professions.lua"}) do assert(loadfile(root.."/WarbandVaultForever/"..f))("WVF",v) end
 local function char(key,name,bags,bank)
-    return {key=key,name=name,realm="Home",faction="Alliance",snapshots={bags={updated=9000,items=bags},bank={updated=9000,items=bank}},professions={}}
+    return {key=key,name=name,ruleset="Home",faction="Alliance",snapshots={bags={updated=9000,items=bags},bank={updated=9000,items=bank}},professions={}}
 end
 local self=char("1:a","Crafter",{{id=1,count=2,bound=false}},{{id=1,count=3,bound=false}})
 local alt=char("1:b","Mage",{{id=1,count=99,bound=true}},{{id=1,count=2,bound=false}})
@@ -19,9 +19,9 @@ assert(list.items[1].buy==3,"Own bags, own bank and eligible alt bank reduce buy
 assert(list.items[1].providers[2].name=="Mage" and list.items[1].providers[2].source=="bank","Soulbound alt bags must not be labelled as a supplier")
 assert(#list.items[1].holdings==4,"Show own and alt bags and banks, including bound holdings")
 local remote=char("1:remote","Linked",{{id=1,count=40,bound=false}},{{id=1,count=60,bound=false}})
-remote.realm="Other"; remote.remoteAccount="linked"; v.db.characters.remote=remote
+remote.ruleset="Other"; remote.remoteAccount="linked"; v.db.characters.remote=remote
 local elsewhere=v.Shopping.Build(result)
-assert(#elsewhere.items[1].holdings==6 and elsewhere.items[1].buy==3,"Other realms are visible without reducing purchases")
+assert(#elsewhere.items[1].holdings==6 and elsewhere.items[1].buy==3,"Other rulesets are visible without reducing purchases")
 v.db.characters.remote=nil
 assert(list.total==1100 and list.priced==2 and list.buyLines==3,"Price subtotal uses only missing purchase quantities")
 local batch=v.Shopping.Build(result,2)

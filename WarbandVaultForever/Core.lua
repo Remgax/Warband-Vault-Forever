@@ -3,6 +3,8 @@
 local addonName, Vault = ...
 local frame = CreateFrame("Frame")
 local pending, pendingItems = false, false
+local loggingOut = false
+local scanGeneration = 0
 Vault.version = "0.3.0-beta.2"
 
 local function Print(message)
@@ -10,11 +12,13 @@ local function Print(message)
 end
 
 local function Queue()
-    if pending then return end
+    if pending or loggingOut then return end
     pending = true
+    local generation = scanGeneration
     C_Timer.After(0.35, function()
+        if generation ~= scanGeneration then return end
         pending = false
-        Vault.Scanner.Refresh()
+        if not loggingOut then Vault.Scanner.Refresh() end
     end)
 end
 
@@ -22,7 +26,7 @@ local function Slash(message)
     message = strtrim(message or ""):lower()
     if message == "scan" then
         Vault.Scanner.Refresh()
-        Print("Bags and equipment saved. Visit a bank or mailbox to update those items.")
+        Print("Bags saved. Visit a bank or mailbox to update those items.")
     elseif message == "minimap" then
         Vault.db.settings.minimap = not (Vault.db.settings.minimap ~= false)
         Vault.UI.minimap:SetShown(Vault.db.settings.minimap)
@@ -47,7 +51,7 @@ local function Slash(message)
         Vault.UI.RefreshSettings()
         Print(message .. ": " .. (Vault.db.settings[message] and "on" or "off"))
     elseif message == "help" then
-        Print("/wvf opens the vault. /wvf settings opens settings. /wvf crafting opens saved recipes in an open profession window. /wvf scan saves items. /wvf minimap or actionbar toggles a shortcut. /wvf sound or effects toggles sound or motion. /wvf resetui resets the window.")
+        Vault.UI.Help()
     else
         Vault.UI.Toggle()
     end
@@ -70,6 +74,25 @@ local function Initialize()
     Print("Type /wvf to open.")
 end
 
+function Vault.ClearRecords()
+    scanGeneration = scanGeneration + 1
+    pending = false
+    -- Stop transfers before replacing the records so a queued import cannot
+    -- immediately restore what the user just cleared. Pairing is retained.
+    if Vault.Sync then
+        Vault.Sync.Stop()
+        Vault.Sync.config.enabled = false
+        Vault.Sync.config.lastSync = nil
+        Vault.Sync.config.lastCharacter = nil
+        Vault.Sync.fingerprints = {}
+        Vault.Sync.status = "Saved records cleared. Account sync paused."
+    end
+    Vault.Model.ClearRecords(Vault.db)
+    Vault.currentKey = nil
+    if Vault.UI then Vault.UI.RecordsCleared() end
+    if Vault.SyncUI then Vault.SyncUI.Refresh() end
+end
+
 frame:SetScript("OnEvent", function(_, event, ...)
     if event == "ADDON_LOADED" then
         if ... == addonName then Initialize() end
@@ -77,6 +100,8 @@ frame:SetScript("OnEvent", function(_, event, ...)
         return
     end
     if not Vault.db then return end
+    if event == "PLAYER_LOGIN" then loggingOut = false end
+    if loggingOut then return end
     if event == "CHAT_MSG_ADDON" then Vault.Sync.Receive(...); return end
     if event == "BANKFRAME_OPENED" then
         Vault.Scanner.bankOpen = true
@@ -93,7 +118,9 @@ frame:SetScript("OnEvent", function(_, event, ...)
     elseif event == "MAIL_INBOX_UPDATE" then
         Queue()
     elseif event == "PLAYER_LOGOUT" then
-        Vault.Scanner.Refresh()
+        -- SavedVariables already references the live database. Client APIs may
+        -- be unavailable during logout; never replace good records here.
+        loggingOut = true
     elseif event == "TRADE_SKILL_SHOW" or event == "CRAFT_SHOW" then
         Vault.Professions.open, Vault.Professions.craft = true, event == "CRAFT_SHOW"
         if Vault.ProfessionWindow then Vault.ProfessionWindow.Attach() end
@@ -119,7 +146,8 @@ frame:SetScript("OnEvent", function(_, event, ...)
         Vault.UI.Refresh()
     elseif event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" then
         Vault.UI.ActionBar()
-        C_Timer.After(1, Queue)
+        local generation = scanGeneration
+        C_Timer.After(1, function() if generation == scanGeneration then Queue() end end)
     elseif event == "PLAYER_REGEN_ENABLED" then
         Vault.UI.ActionBar()
         if Vault.ProfessionWindow then Vault.ProfessionWindow.Attach() end

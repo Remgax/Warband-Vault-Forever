@@ -36,7 +36,7 @@ function View.Create(parent)
     View.characterButton=W.Button(frame,"All characters",185,27,function(self)
         local options={{text="All characters",value=false}}
         for _,character in ipairs(Model.Characters(Vault.db)) do
-            options[#options+1]={text=character.name.." / "..(character.realm or ""),value=character.key}
+            options[#options+1]={text=character.name.." / "..Vault.Model.Ruleset(character),value=character.key}
         end
         UI.FilterMenu(self,options,function(value) View.character=value or nil; View.selected=nil; View.Refresh() end)
     end)
@@ -269,7 +269,7 @@ function View.Details(result)
                     parts[#parts + 1] = label .. " " .. record[location]
                 end
             end
-            local limits = owner.otherRealm and " [other realm]" or owner.otherFaction and " [other faction]" or
+            local limits = owner.otherRuleset and " [other or unknown ruleset]" or owner.otherFaction and " [other faction]" or
                 record.bound > 0 and " [" .. record.bound .. " bound]" or ""
             lines[#lines + 1] = record.character.name .. ": " .. table.concat(parts, ", ") .. limits
         end

@@ -13,8 +13,8 @@ loadModule("Model")
 local M = Vault.Model
 local db = M.Open()
 Vault.db = db
-local a = M.Character(db, "1:one", {name="Aeris", realm="Realm One", money=10123})
-local b = M.Character(db, "1:two", {name="Borin", realm="Realm Two", money=20234})
+local a = M.Character(db, "1:one", {name="Aeris", ruleset="PvE", money=10123})
+local b = M.Character(db, "1:two", {name="Borin", ruleset="PvP", money=20234})
 M.Save(a, "bags", {{id=1, name="Peacebloom", count=12, quality=1, slot=1}}, 16, 1000)
 M.Save(b, "bank", {{id=1, name="Peacebloom", count=8, quality=1, slot=1},
     {id=2, name="Epic Blade", count=1, quality=4, slot=2}}, 28, 900)
@@ -23,7 +23,7 @@ check(gold == 30357 and characters == 2 and stacks == 3, "Account totals aggrega
 check(#M.Find(db, nil, "all", "peace", nil) == 2, "Cross-character search")
 check(#M.Find(db, a.key, "bank", "", nil) == 0, "Unrecorded bank is empty without inventing data")
 check(#M.Find(db, nil, "all", "BORIN", nil) == 2, "Owner search is case insensitive")
-check(#M.Find(db, nil, "all", "Realm Two", nil) == 2, "Realm search")
+check(#M.Find(db, nil, "all", "PvP", nil) == 2, "Ruleset search")
 check(#M.Find(db, nil, "all", "2", nil) == 1, "Item ID search")
 check(#M.Find(db, nil, "all", "[", nil) == 0, "Search uses literal text, not Lua patterns")
 check(#M.Find(db, nil, "all", "", 4) == 1, "Quality filter")
@@ -84,8 +84,21 @@ S.Bags()
 local current = db.characters[Vault.currentKey]
 check(current.money == 54321 and current.level == 60, "Player identity and wallet recorded")
 check(current.snapshots.bags.items[1].count == 5, "Bag stack recorded")
-S.Equipment()
-check(current.snapshots.equipment.items[1].slot == 16, "Equipped slots recorded")
+check(current.name == "Tester Test Realm" and current.ruleset == "Test Realm" and current.realm == nil,
+    "Forever's surname remains part of the name, separate from the server/ruleset label")
+M.Save(current, "equipment", {{id=98765, name="Legacy equipped blade", count=1, quality=4}}, 19, 1000)
+check(#M.Find(db, nil, "all", "Legacy equipped", nil) == 0 and #M.Owners(db, 98765) == 0,
+    "Legacy equipment remains saved but is excluded from storage views and owner counts")
+local bagSnapshot = current.snapshots.bags
+local backpack = data[0]
+data[0] = nil
+S.Bags()
+check(current.snapshots.bags == bagSnapshot, "Unavailable zero-capacity bags preserve the last snapshot")
+data[0] = {capacity=16}
+S.Bags()
+check(#current.snapshots.bags.items == 0, "An accessible empty backpack can replace the last snapshot")
+data[0] = backpack
+S.Bags()
 S.Bank()
 check(current.snapshots.bank == nil, "Closed bank cannot invent a snapshot")
 S.bankOpen = true

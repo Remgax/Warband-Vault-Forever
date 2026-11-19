@@ -13,7 +13,7 @@ request before sharing records. Both sides then exchange session-targeted addon
 whispers. A new character advertises the same account ID and proves possession
 of the code. Retired sessions and old sequence numbers are rejected.
 
-The discovery channel is limited by realm/faction reachability. There is no
+The discovery channel is limited by ruleset/faction reachability. There is no
 Battle.net transport, web service, or encryption. Codes use WoW's PRNG plus
 session inputs; hashing does not turn that source into an OS-grade random source.
 They are scoped to addon inventory sharing, not suitable as passwords.

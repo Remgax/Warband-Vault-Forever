@@ -2,7 +2,7 @@ local root=...
 local now,elapsed,network=1700000000,0,{}
 local clients={}
 local function character(name,guid)
-    return {key="3:Player-1-"..guid,name=name,realm="Legend",class="MAGE",className="Mage",
+    return {key="3:Player-1-"..guid,name=name,ruleset="Legend",class="MAGE",className="Mage",
         race="Human",raceName="Human",sex=2,level=20,faction="Alliance",money=42000,lastSeen=now,
         snapshots={bags={updated=now,capacity=20,items={{id=2447,name="Peacebloom",count=4,quality=1,bound=false}}},
         bank={updated=now,capacity=40,items={{id=2447,name="Peacebloom",count=16,quality=1,bound=false}}}},professions={}}

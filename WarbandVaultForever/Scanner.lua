@@ -17,19 +17,25 @@ end
 
 function Scanner.Identity()
     if not Vault.db or not UnitGUID("player") then return end
-    local name, realm = UnitFullName("player")
+    local name, surname = UnitFullName("player")
+    if not name or name == "" then return end
+    if surname and surname ~= "" then name = name .. " " .. surname end
+    -- Forever returns the surname as UnitFullName's second result. The
+    -- server/ruleset label comes from GetRealmName, never from the name.
+    local ruleset = GetRealmName()
     local className, class = UnitClass("player")
     local raceName, race = UnitRace("player")
     local key = tostring(GetCurrentRegion()) .. ":" .. UnitGUID("player")
     Vault.currentKey = key
     local character = Model.Character(Vault.db, key, {
-        name = name, realm = realm or GetRealmName(), guid = UnitGUID("player"),
+        name = name, ruleset = ruleset ~= "" and ruleset or nil, guid = UnitGUID("player"),
         class = class, className = className, race = race, raceName = raceName,
         sex = UnitSex("player"), level = UnitLevel("player"),
         faction = UnitFactionGroup("player"), zone = GetRealZoneText(),
         money = GetMoney(), lastSeen = time(),
     })
     character.remoteAccount = nil
+    character.realm = nil
     return character
 end
 
@@ -53,7 +59,7 @@ local function Containers(character, source, bags)
             end
         end
     end
-    if source == "bank" and capacity == 0 then return end
+    if capacity == 0 then return end
     Model.Save(character, source, items, capacity, time())
 end
 
@@ -64,21 +70,6 @@ function Scanner.Bags()
     if Enum.BagIndex.ReagentBag then bags[#bags + 1] = Enum.BagIndex.ReagentBag end
     if Enum.BagIndex.Keyring then bags[#bags + 1] = Enum.BagIndex.Keyring end
     Containers(character, "bags", bags)
-end
-
-function Scanner.Equipment()
-    local character = Scanner.Identity()
-    if not character then return end
-    local items = {}
-    for slot = 1, 19 do
-        local id = GetInventoryItemID("player", slot)
-        if id then
-            items[#items + 1] = Item(id, GetInventoryItemLink("player", slot),
-                GetInventoryItemTexture("player", slot), 1,
-                GetInventoryItemQuality("player", slot), nil, slot)
-        end
-    end
-    Model.Save(character, "equipment", items, 19, time())
 end
 
 function Scanner.Bank()
@@ -130,7 +121,6 @@ end
 function Scanner.Refresh()
     if not Vault.db then return end
     Scanner.Bags()
-    Scanner.Equipment()
     Scanner.Bank()
     Scanner.Mail()
     if Vault.Professions then Vault.Professions.Skills(); Vault.Professions.Scan() end

@@ -27,7 +27,7 @@ local function Send(kind,payload,target,session,channel)
     local ok,result=pcall(C_ChatInfo.SendAddonMessage,PREFIX,message,channel or "WHISPER",target)
     if not ok then Status("WoW blocked addon communication. Try again outside combat.") end
     if ok and Enum and Enum.SendAddonMessageResult and result and result~=Enum.SendAddonMessageResult.Success then
-        Status("WoW could not send a sync message. Check the channel, realm and faction.")
+        Status("WoW could not send a sync message. Check the channel, ruleset and faction.")
     end
 end
 local function Control(kind,payload,target,session)
@@ -92,7 +92,7 @@ local function Announce()
     if not S.joined then return end
     local id=GetChannelName(S.joined)
     if id and id>0 then Send("H","",tostring(id),nil,"CHANNEL")
-    else Status("Discovery channel unavailable. Both accounts need the same realm and faction.") end
+    else Status("Discovery channel unavailable. Both accounts need the same ruleset and faction.") end
 end
 local function BeginNext()
     if not S.active or S.tx then return end
@@ -100,7 +100,7 @@ local function BeginNext()
         if not c.remoteAccount then
             local record=Data.Local(c)
             if S.config.shareProfessions==false then record.professions=nil end
-            if S.config.shareMail==false then record.snapshots={}; for k,v in pairs(c.snapshots) do if k~="mail" then record.snapshots[k]=v end end end
+            if S.config.shareMail==false then record.snapshots.mail=nil end
             local ok,stable=pcall(Data.Encode,record,true)
             if ok then
                 local digest=Crypto.sha256(stable); local old=S.fingerprints[c.key]

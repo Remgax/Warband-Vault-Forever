@@ -98,11 +98,13 @@ function Data.Clean(c)
     local classes={WARRIOR=true,PALADIN=true,HUNTER=true,ROGUE=true,PRIEST=true,DEATHKNIGHT=true,
         SHAMAN=true,MAGE=true,WARLOCK=true,MONK=true,DRUID=true,DEMONHUNTER=true,EVOKER=true}
     assert(classes[c.class] and (c.faction=="Alliance" or c.faction=="Horde" or c.faction=="Neutral"))
-    local result={key=c.key,guid=c.key:match("^[^:]+:(.+)$"),name=assert(Str(c.name)),realm=assert(Str(c.realm)),
+    local result={key=c.key,guid=c.key:match("^[^:]+:(.+)$"),name=assert(Str(c.name)),realm=Str(c.realm),
+        ruleset=Str(c.ruleset),
         class=c.class,className=Str(c.className,c.class),race=Str(c.race,"Human"),raceName=Str(c.raceName,""),
         sex=c.sex==3 and 3 or 2,level=assert(Num(c.level,1000)),faction=c.faction,
         money=Num(c.money,1e13) or 0,lastSeen=assert(Stamp(c.lastSeen)),snapshots={},professions={}}
     assert(result.race:match("^[%a]+$"))
+    if result.ruleset == "" then result.ruleset = nil end
     for _, source in ipairs(Vault.Model.sources) do if c.snapshots and c.snapshots[source] then result.snapshots[source]=Items(c.snapshots[source]) end end
     local skillCount, recipeCount = 0,0
     for name, skill in pairs(c.professions or {}) do
@@ -131,7 +133,12 @@ end
 
 function Data.Local(character)
     local result={}
-    for _,key in ipairs({"key","name","realm","class","className","race","raceName","sex","level","faction","money","lastSeen","snapshots","professions"}) do result[key]=character[key] end
+    for _,key in ipairs({"key","name","ruleset","class","className","race","raceName","sex","level","faction","money","lastSeen","professions"}) do result[key]=character[key] end
+    result.snapshots = {}
+    for _,source in ipairs(Vault.Model.sources) do result.snapshots[source] = character.snapshots[source] end
+    -- Retain the old wire field for older peers, but never interpret an old
+    -- record's surname/realm as an authoritative ruleset on receipt.
+    result.realm = character.ruleset or character.realm or ""
     return result
 end
 
@@ -147,7 +154,7 @@ function Data.Merge(db, account, character)
             if not c.professions[name] or (skill.updated or 0)>=(c.professions[name].updated or 0) then c.professions[name]=skill end
         end
         if old.lastSeen>c.lastSeen then
-            for _,field in ipairs({"name","realm","class","className","race","raceName","sex","level","faction","money","lastSeen"}) do c[field]=old[field] end
+            for _,field in ipairs({"name","realm","ruleset","class","className","race","raceName","sex","level","faction","money","lastSeen"}) do c[field]=old[field] end
         end
     end
     c.remoteAccount=account; db.characters[c.key]=c; return true

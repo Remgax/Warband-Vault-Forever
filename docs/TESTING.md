@@ -3,6 +3,33 @@
 Automated mocks exercise Lua behavior, not the actual game renderer. Record
 client build, date, and observed results when performing these checks.
 
+## Pending issue-fix checks (not yet verified in-game)
+
+- On two characters with different surnames, compare `/dump UnitFullName("player")`
+  and `/dump GetRealmName()`. Confirm that the full name includes the surname,
+  and the ruleset filter displays the separate server label. The implementation
+  uses the complete label as the identifier; it does not infer relationships
+  between different server labels.
+- Record each character's bags, wallet, bank and recipes. Log out normally,
+  switch between them, `/reload` and restart the client. Confirm both characters'
+  snapshots and wallet totals survive. Report any loss with the exact sequence;
+  automated persistence tests cannot prove the client's disk-writing behavior.
+- Refresh legacy records by logging into their owners. Confirm stored inventories
+  survive, full names update, and materials from same-label/same-faction alts with
+  different surnames become usable; bound items and other/unknown rulesets stay
+  restricted. Test with both accounts on the updated addon version for sync.
+- Verify there is no Equipment tab and no equipped items appear in All items or
+  storage ownership totals, including when loading an older SavedVariables file.
+- Open Clear saved records, then cancel or press Escape: nothing should change.
+  Confirm deletion on disposable test data: inventories, gold, recipes and cached
+  plans disappear, preferences and pairing remain, sync pauses and old transfers
+  do not repopulate the records. New game events may scan the current character.
+- Check Help and Credits buttons, scrolling, close controls and Escape. Help must
+  describe commands, material restrictions, sync, clearing and troubleshooting.
+  Credits must identify Remgax and Egor Skriptunoff's MIT-licensed SHA library.
+
+## General game checks
+
 1. Restart Forever after first installation. Confirm the Inventory category,
    custom icon, title, version, and addon enabled status in the AddOns list.
 2. Log in and run `/wvf`. Check artwork, live portrait, readable labels,
@@ -14,7 +41,7 @@ client build, date, and observed results when performing these checks.
 6. Open mail. Check attachments, mail money, partial inbox guidance, COD labels,
    and expiration estimates. Take an attachment and check that it disappears.
 7. Log out normally, log into a second character, and open the vault. Confirm
-   the first character's gold, bags, bank, equipment, and mail remain browsable.
+   the first character's gold, bags, bank and mail remain browsable.
 8. Record the second character's bank and repeat after `/reload` and a full restart.
 9. Confirm account gold sums recorded wallets once each and excludes mailbox gold.
 10. Search across characters; hover a shared item and verify owner counts.
@@ -39,7 +66,7 @@ client build, date, and observed results when performing these checks.
     Labels must sit above the bars; Settings sits beside Refresh in the footer.
 21. Open each profession and compare learned recipes. Check material counts in
     bags and bank; check an alt with transferable and soulbound supplies.
-22. Search characters and combine class, profession, realm, faction, and level filters.
+22. Search characters and combine class, profession, ruleset, faction, and level filters.
 
 Observed 2026-11-17 on Forever 1.60.1.70938: the bag-bar shortcut opens the
 vault; the repaired X closes it. Circular item icons fit inside the bag.
@@ -63,7 +90,7 @@ account trust, malformed data rejection, local record ownership, newer bank
 preservation, offline caching, and local unlink cleanup.
 
 For the live test, install the same version on two accounts, enter the same
-realm/faction, and pair through Settings. Approve on the creating account. Check
+ruleset/faction, and pair through Settings. Approve on the creating account. Check
 inventories and gold in both directions, update each bank, then switch alts and
 confirm automatic reconnection. Test paused sync, manual sync, sharing controls,
 offline records, reloads, and unlink on both ends. This live two-account transfer

@@ -43,8 +43,8 @@ Layout, left aligned:
 | vault emblem / Warband Vault Forever             illustrated chamber |
 | recorded gold / characters / recorded stacks                         |
 +------------------------+--------------------------------------------+
-| All characters         | portrait / name / level / realm / gold      |
-| Name or gold sort      | All / Bags / Bank / Equipment / Mail         |
+| All characters         | portrait / name / level / ruleset / gold      |
+| Name or gold sort      | All / Bags / Bank / Mail         |
 |                        | search                           quality     |
 | portrait / name / gold | item grid with quantities and quality edges |
 | portrait / name / gold |                                            |

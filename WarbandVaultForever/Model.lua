@@ -3,9 +3,22 @@
 local _, Vault = ...
 Vault.Model = {}
 local Model = Vault.Model
-local sources = {"bags", "bank", "equipment", "mail"}
+local sources = {"bags", "bank", "mail"}
 Model.sources = sources
 Model.schema = 1
+
+function Model.Ruleset(character)
+    return type(character.ruleset) == "string" and character.ruleset ~= "" and character.ruleset or "Unknown ruleset"
+end
+
+function Model.SameRuleset(a, b)
+    return type(a.ruleset) == "string" and a.ruleset ~= "" and a.ruleset == b.ruleset
+end
+
+function Model.ClearRecords(db)
+    db.characters = {}
+    db.shoppingList = nil
+end
 
 function Model.Open(db)
     db = db or {}
@@ -36,14 +49,14 @@ function Model.Characters(db, sort, filters)
     filters = filters or {}
     for _, character in pairs(db.characters) do
         local matches = (not filters.class or character.class == filters.class)
-            and (not filters.realm or character.realm == filters.realm)
+            and (not filters.ruleset or Model.Ruleset(character) == filters.ruleset)
             and (not filters.faction or character.faction == filters.faction)
             and (not filters.minLevel or (character.level or 0) >= filters.minLevel)
             and (not filters.maxLevel or (character.level or 0) <= filters.maxLevel)
             and (not filters.profession or character.professions and character.professions[filters.profession])
         local professions = ""
         for name in pairs(character.professions or {}) do professions = professions .. " " .. name end
-        local text = ((character.name or "") .. " " .. (character.realm or "") .. " " ..
+        local text = ((character.name or "") .. " " .. Model.Ruleset(character) .. " " ..
             (character.className or character.class or "") .. " " .. professions):lower()
         for token in (filters.query or ""):lower():gmatch("%S+") do
             if not text:find(token, 1, true) then matches = false end
@@ -84,7 +97,7 @@ function Model.Find(db, key, source, query, quality, allowed)
                     for _, item in ipairs(snapshot and snapshot.items or {}) do
                         local text = ((item.name or "") .. " " .. (item.link or "") .. " " ..
                             tostring(item.id or "") .. " " .. (character.name or "") .. " " ..
-                            (character.realm or "") .. " " .. (item.kind or "")):lower()
+                            Model.Ruleset(character) .. " " .. (item.kind or "")):lower()
                         if text:find(query, 1, true) and (not quality or item.quality == quality) then
                             results[#results + 1] = {item = item, character = character,
                                 source = location, updated = snapshot.updated}

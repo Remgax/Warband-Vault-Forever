@@ -29,6 +29,8 @@ def main():
     shopping_lua = LuaRuntime(unpack_returned_tuples=True)
     shopping_lua.execute((ROOT / "tests/shopping.lua").read_text(encoding="utf-8"), ROOT.as_posix())
     lua.execute((ROOT / "tests/core_events.lua").read_text(encoding="utf-8"), ROOT.as_posix())
+    persistence_lua = LuaRuntime(unpack_returned_tuples=True)
+    persistence_lua.execute((ROOT / "tests/persistence.lua").read_text(encoding="utf-8"), ROOT.as_posix())
     toc = (ADDON / "WarbandVaultForever.toc").read_text()
     assert "## Interface: 16001" in toc
     assert "## Category: Inventory" in toc
