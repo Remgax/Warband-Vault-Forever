@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.3.0-beta.4] - 2026-11-19
+
+- Keep the Original Satchel skin and add Classic Blizzard and Minimal Dark skins using native client textures, plain panels and compact square item grids.
+- Offer a skin picker on the first login after installation or upgrade, with previews and an account-wide saved choice. Defer the welcome picker during combat; dismissing it keeps the original.
+- Add Settings > Choose skin with live previews, explicit confirmation and cancellation that restores the previous style, without requiring a reload.
+- Apply skins to existing and newly opened addon panels, including professions, shopping, sync, Help and Settings. Keep inventory data, filters, scale, sound and effects preferences intact.
+- Cover skin persistence, welcome handling, combat deferral, preview/cancel, square-grid scrolling, lazy panel styling, restoring the original and release packaging in automated checks. Live client rendering remains to be verified.
+
 ## [0.3.0-beta.3] - 2026-11-19
 
 - Preserve the last live bags and wallet at logout; cancel queued scans during logout and retain bags when their capacity is unavailable (#1).

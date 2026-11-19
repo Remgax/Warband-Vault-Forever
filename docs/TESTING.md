@@ -3,6 +3,28 @@
 Automated mocks exercise Lua behavior, not the actual game renderer. Record
 client build, date, and observed results when performing these checks.
 
+## Pending skin checks (0.3.0-beta.4; not yet verified in-game)
+
+- Start with no saved skin preference (new install or upgrade). Verify that the
+  welcome picker appears once after login, offers all three styles with previews,
+  waits until combat ends and does not reset a preview on another world event.
+- Confirm each skin and inspect title, item icons, quality borders, stack counts,
+  search, tooltips, character selection and scrolling through a large inventory.
+  Classic Blizzard and Minimal Dark must show square items in sixteen columns
+  without leather artwork or a satchel opening animation. Original Satchel must
+  retain its artwork, circular items and animation.
+- Use Settings > Choose skin to preview and cancel; the saved skin must return.
+  Confirm another skin; switch characters and `/reload`. The account-wide choice
+  must persist, the welcome picker must stay closed, and records must be unchanged.
+- Close the first welcome picker with Escape or its close button; Original
+  Satchel must remain selected and the welcome must not repeat on the next login.
+- Switch styles while Settings, recipes, shopping or sync panels already exist,
+  and then open a panel for the first time. Both existing and new panels should
+  follow the active skin. Test return to Original Satchel after both simple skins.
+- Check readability and clipping at 65%, 100% and 120% scale on a smaller screen,
+  including the welcome cards, Settings skin controls, compact grid and scrollbars.
+- Clear saved inventory records on disposable test data; the skin must survive.
+
 ## Pending issue-fix checks (not yet verified in-game)
 
 - On two characters with different surnames, compare `/dump UnitFullName("player")`

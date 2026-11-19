@@ -8,7 +8,7 @@
 Browse your characters' saved bags, banks, mail, and gold in
 **World of Warcraft: Forever** (Interface **16001**).
 
-**Current beta: 0.3.0-beta.3.** Inventory tracking, account sync, and the new
+**Current beta: 0.3.0-beta.4.** Inventory tracking, account sync, and the new
 profession-window tools are available for testing. Report problems through
 [GitHub Issues](https://github.com/Remgax/Warband-Vault-Forever/issues).
 
@@ -20,6 +20,8 @@ profession-window tools are available for testing. Report problems through
 - Item tooltips show recorded owners, quantities, location, and snapshot time.
 - A leather satchel interface with stitched edges, brass fittings, an opening
   animation, and item hover glow. Sound and effects can be turned off separately.
+- Three skins: **Original Satchel**, **Classic Blizzard**, and **Minimal Dark**.
+  Simple skins use compact square item grids and native Blizzard-style panels.
 - WoW's backpack-opening sound and a vault button beside the action-bar bags.
 - Shift-click item links, a movable window, adjustable scale, and a minimap button.
 - Original artwork and built-in profession tools. No other addon is required.
@@ -56,6 +58,14 @@ The installer backs up an existing addon folder before copying files. Account
 SavedVariables are stored by WoW in its WTF folder and are not touched by it.
 
 ## Saved records and limitations
+
+On the first login after installing or upgrading to the skin picker, choose a
+style and click **Use selected skin**. The choice applies to every character on
+this account. Closing the welcome picker keeps Original Satchel. To change it,
+open **Settings → Choose skin**; click a card to preview, then confirm or cancel.
+Changes apply immediately without `/reload`. Switching skins preserves inventory
+records and other preferences; selecting Original Satchel restores its artwork,
+circular slots and opening animation. Simple skins omit the satchel animation.
 
 The addon can only record the character currently logged in. Recorded characters
 remain browsable while offline; bank and mail records refresh when their owner

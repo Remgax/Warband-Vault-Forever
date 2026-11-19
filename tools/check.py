@@ -37,6 +37,7 @@ def main():
     assert "## Category-enUS: Inventory" in toc
     assert "## SavedVariables: WarbandVaultForeverDB" in toc
     assert "## X-License: GPL-3.0-only" in toc
+    assert toc.index("Skins.lua") < toc.index("UI.lua"), "Load skin definitions before the UI"
     assert "GNU GENERAL PUBLIC LICENSE" in (ROOT / "LICENSE").read_text()
     for line in toc.splitlines():
         if line.strip() and not line.startswith("#"):
@@ -76,6 +77,7 @@ def main():
             assert "WarbandVaultForever/WarbandVaultForever.toc" in names
             assert "WarbandVaultForever/Assets/Icon.tga" in names
             assert "WarbandVaultForever/Bindings.xml" in names
+            assert "WarbandVaultForever/Skins.lua" in names
             packed_toc = archive.read("WarbandVaultForever/WarbandVaultForever.toc").decode("utf-8")
             assert "bindings.xml" not in packed_toc.lower()
             assert all(n.startswith("WarbandVaultForever/") for n in names)

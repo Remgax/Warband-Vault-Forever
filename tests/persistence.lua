@@ -40,7 +40,7 @@ local function session(saved, guid, first, last, copper, itemID)
     }
     env.C_Item = {GetItemInfo=function(id) return "Item "..id, "item:"..id, 1 end}
     local function noop() end
-    local v = {UI={Minimap=noop, ActionBar=noop, Refresh=noop, RecordsCleared=noop}}
+    local v = {UI={Minimap=noop, ActionBar=noop, Refresh=noop, RecordsCleared=noop, ApplySkin=noop, FirstLogin=noop}}
     for _, file in ipairs({"Model", "Libs/SHA", "SyncData", "Sync", "Scanner", "Core"}) do
         setfenv(assert(loadfile(root.."/WarbandVaultForever/"..file..".lua")),env)("WarbandVaultForever",v)
     end
@@ -92,6 +92,7 @@ assert(second.SyncData.Local(second.db.characters[firstKey]).snapshots.equipment
 local old=second.SyncData.Local(second.db.characters[firstKey]); old.ruleset=nil; old.realm="Ravenswood"
 assert(second.SyncData.Clean(old).ruleset==nil, "Legacy surnames must never become rulesets")
 
+second.db.settings.skin="minimal"
 event2("PLAYER_LOGOUT"); flush2()
 local again=second.SyncData.Decode(second.SyncData.Encode(second.db))
 again.characters[firstKey].name="Gareth"
@@ -103,6 +104,7 @@ assert(third.db.characters[firstKey].name=="Gareth Ravenswood" and third.db.char
     "A legacy identity upgrades in place without losing stored inventories")
 assert(third.Model.Totals(third.db)==80235, "Returning to the first character retains the second wallet")
 assert(third.db.characters[secondKey].snapshots.bags.items[1].id==765)
+assert(third.db.settings.skin=="minimal", "Skin preference survives serialization and login on a different character")
 
 third.db.settings.scale=0.9; third.db.shoppingList={name="Old cached plan"}
 third.Sync.config.key="private-fixture"; third.Sync.config.peerID="abcdefabcdef"
@@ -115,6 +117,7 @@ assert(next(third.db.characters)==nil and third.currentKey==nil and third.db.sho
 assert(third.Sync.config.key=="private-fixture" and third.Sync.config.peerID=="abcdefabcdef" and not third.Sync.config.enabled)
 assert(third.db.settings.scale==0.9 and not third.Sync.active and not third.Sync.rx and not third.Sync.tx,
     "Clearing preserves preferences and pairing, pauses sync and discards in-flight transfers")
+assert(third.db.settings.skin=="minimal", "Record clearing leaves the saved skin intact")
 third.Sync.Tick()
 assert(next(third.db.characters)==nil, "Paused sync cannot repopulate cleared records")
 event3("BAG_UPDATE_DELAYED"); flush3()

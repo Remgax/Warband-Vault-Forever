@@ -4,11 +4,8 @@ local _, Vault = ...
 Vault.UI = {}
 local UI, Model = Vault.UI, Vault.Model
 local ART = "Interface\\AddOns\\WarbandVaultForever\\Assets\\"
-local C = {
-    stone = {0.145, 0.102, 0.078}, inset = {0.29, 0.19, 0.125},
-    gold = {0.79, 0.61, 0.30}, text = {0.94, 0.89, 0.78},
-    muted = {0.72, 0.65, 0.54}, blue = {0.42, 0.69, 0.81},
-}
+local Skins = Vault.Skins
+local C = Skins.colors
 local labels = {all = "All items", bags = "Bags", bank = "Bank", mail = "Mailbox"}
 local COLUMNS, CELL, VIEW_HEIGHT = 10, 60, 210
 UI.source, UI.sort, UI.query = "bags", "name", ""
@@ -16,10 +13,7 @@ UI.source, UI.sort, UI.query = "bags", "name", ""
 local function Panel(parent, width, height, color, name)
     local frame = CreateFrame("Frame", name, parent, "BackdropTemplate")
     frame:SetSize(width, height)
-    frame:SetBackdrop({bgFile = ART .. "Leather", edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-        edgeSize = 16, tile = true, tileSize = 256, insets = {left = 5, right = 5, top = 5, bottom = 5}})
-    frame:SetBackdropColor(1, 1, 1, 1)
-    frame:SetBackdropBorderColor(0.65, 0.50, 0.29, 1)
+    Skins.Register(frame, color==C.inset and "inset" or "panel")
     return frame
 end
 
@@ -27,6 +21,7 @@ local function Text(parent, text, size, color, width)
     local font = parent:CreateFontString(nil, "OVERLAY")
     font:SetFont(STANDARD_TEXT_FONT, size or 12, "")
     font:SetTextColor(unpack(color or C.text))
+    Skins.Font(font, color or C.text)
     font:SetJustifyH("LEFT")
     font:SetText(text or "")
     if width then font:SetWidth(width) end
@@ -36,10 +31,7 @@ end
 local function Button(parent, text, width, height, action)
     local button = CreateFrame("Button", nil, parent, "BackdropTemplate")
     button:SetSize(width, height or 30)
-    button:SetBackdrop({bgFile = ART .. "Leather", edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        edgeSize = 10, insets = {left = 3, right = 3, top = 3, bottom = 3}})
-    button:SetBackdropColor(1, 1, 1, 1)
-    button:SetBackdropBorderColor(0.40, 0.29, 0.17, 1)
+    Skins.Register(button, "button")
     button:EnableMouse(true)
     button:RegisterForClicks("LeftButtonUp")
     button.label = Text(button, text, 12)
@@ -48,7 +40,7 @@ local function Button(parent, text, width, height, action)
     button:SetScript("OnClick", action)
     button:SetScript("OnEnter", function(self) self:SetBackdropBorderColor(unpack(C.gold)) end)
     button:SetScript("OnLeave", function(self)
-        self:SetBackdropBorderColor(0.40, 0.29, 0.17, 1)
+        self:SetBackdropBorderColor(unpack(Skins.Current().buttonBorder))
     end)
     return button
 end
@@ -68,7 +60,7 @@ local function Portrait(parent, size)
     backing:SetSize(size+4,size+4)
     local background=backing:CreateTexture(nil,"BACKGROUND")
     background:SetAllPoints(); background:SetTexture(ART.."CircleMask")
-    background:SetVertexColor(unpack(C.inset))
+    Skins.Tint(background,C.inset)
     local texture = backing:CreateTexture(nil, "ARTWORK")
     texture:SetPoint("TOPLEFT", 2, -2)
     texture:SetPoint("BOTTOMRIGHT", -2, 2)
@@ -81,7 +73,7 @@ local function Portrait(parent, size)
     texture:AddMaskTexture(mask); backing.livePortrait:AddMaskTexture(mask)
     local rim=backing:CreateTexture(nil,"OVERLAY")
     rim:SetTexture(ART.."SlotRing"); rim:SetAllPoints()
-    rim:SetVertexColor(unpack(C.gold))
+    Skins.Tint(rim,C.gold)
     backing.mask=mask; backing.rim=rim
     backing.portrait = texture
     return backing
@@ -143,7 +135,7 @@ function UI.RosterLayout()
     UI.filterPanel:SetShown(UI.filtersExpanded or false)
     UI.rosterScroll:ClearAllPoints()
     UI.rosterScroll:SetPoint("TOPLEFT", UI.roster, "TOPLEFT", 12, -top)
-    UI.rosterScroll:SetHeight(523 - top - 16)
+    UI.rosterScroll:SetHeight((UI.rosterHeight or 523) - top - 16)
     UI.rosterScroll:SetVerticalScroll(0)
     local active = 0
     for key, value in pairs(UI.rosterFilters) do if value and value ~= "" then active = active + 1 end end
@@ -216,7 +208,7 @@ end
 function UI.OpenEffect()
     UI.StopEffects()
     local strength = Vault.db.settings.effects == false and 0 or Vault.db.settings.effectStrength or 0.7
-    if strength <= 0 then return end
+    if strength <= 0 or Skins.Current().compact then return end
     local elapsed = 0
     UI.frame:SetAlpha(1 - 0.75 * strength)
     UI.flap:Show()
@@ -245,6 +237,140 @@ function UI.Close()
     if UI.frame then UI.frame:Hide() end
 end
 
+local function SkinItem(button)
+    local compact = Skins.Current().compact == true
+    local round = not compact
+    if button.round ~= round then
+        if round then button.icon:AddMaskTexture(button.mask)
+        else button.icon:RemoveMaskTexture(button.mask) end
+        button.round = round
+    end
+    local size, inset = compact and 38 or 48, compact and 2 or 4
+    button:SetSize(size,size)
+    button.icon:ClearAllPoints()
+    button.icon:SetPoint("TOPLEFT",inset,-inset); button.icon:SetPoint("BOTTOMRIGHT",-inset,inset)
+    button.pocket:SetTexture(compact and "Interface\\Buttons\\UI-EmptySlot-Disabled" or ART.."CircleMask")
+    button.rim:SetShown(round)
+    button:SetBackdrop(compact and {bgFile="Interface\\Buttons\\WHITE8X8",edgeFile="Interface\\Buttons\\WHITE8X8",edgeSize=1} or nil)
+    button.glow:SetTexture(compact and "Interface\\Buttons\\ButtonHilight-Square" or ART.."SlotGlow")
+    button.glow:SetSize(compact and 42 or 72,compact and 42 or 72)
+end
+
+function UI.ApplySkin(id)
+    id = id or Vault.db.settings.skin
+    Skins.Apply(id)
+    local compact = Skins.Current().compact == true
+    COLUMNS, CELL, VIEW_HEIGHT = compact and 16 or 10, compact and 44 or 60, compact and 260 or 210
+    if UI.frame then
+        UI.StopEffects()
+        if not compact then UI.frame:SetBackdropBorderColor(unpack(C.gold)) end
+        UI.frame:SetHeight(compact and 660 or 760)
+        UI.header:SetHeight(compact and 50 or 113)
+        UI.headerArt:SetShown(not compact); UI.headerIcon:SetShown(not compact); UI.headerSubtitle:SetShown(not compact)
+        UI.headerTitle:ClearAllPoints(); UI.headerTitle:SetPoint("TOPLEFT",compact and 20 or 106,compact and -14 or -26)
+        UI.headerTitle:SetFont("Fonts\\FRIZQT__.TTF",compact and 21 or 29,"")
+        UI.totals:ClearAllPoints(); UI.totals:SetPoint("TOPLEFT",20,compact and -67 or -132)
+        UI.rosterHeight = compact and 500 or 523
+        UI.roster:ClearAllPoints(); UI.roster:SetPoint("TOPLEFT",16,compact and -92 or -161)
+        UI.roster:SetHeight(UI.rosterHeight)
+        UI.main:ClearAllPoints(); UI.main:SetPoint("TOPLEFT",290,compact and -92 or -161)
+        UI.main:SetHeight(UI.rosterHeight)
+        UI.satchel:SetShown(not compact)
+        UI.itemsScroll:ClearAllPoints()
+        UI.itemsScroll:SetPoint("TOPLEFT",UI.main,"TOPLEFT",compact and 20 or 64,compact and -174 or -244)
+        UI.itemsScroll:SetSize(compact and 704 or 610,VIEW_HEIGHT)
+        UI.itemsChild:SetWidth(compact and 704 or 610)
+        UI.empty:SetWidth(compact and 680 or 620)
+        UI.itemsScroll:SetVerticalScroll(0)
+        UI.RosterLayout(); UI.ApplyPosition()
+        UI.RefreshItems(); UI.Refresh()
+    end
+    if Vault.CraftingUI then Vault.CraftingUI.Refresh() end
+    if UI.skinLabel then UI.skinLabel:SetText("Skin: "..Skins.Current().name) end
+end
+
+function UI.SelectSkin(id)
+    if not Skins.Valid(id) then return false end
+    Vault.db.settings.skin = id
+    UI.ApplySkin(id)
+    return true
+end
+
+function UI.SkinPicker()
+    if not UI.skinFrame then
+        local panel = Panel(UIParent,770,345,nil,"WarbandVaultForeverSkins")
+        UI.skinFrame = panel
+        panel:SetPoint("CENTER"); panel:SetFrameStrata("DIALOG"); panel:SetFrameLevel(210)
+        panel:SetClampedToScreen(true)
+        table.insert(UISpecialFrames,"WarbandVaultForeverSkins")
+        Text(panel,"Choose your skin",22,C.gold):SetPoint("TOPLEFT",22,-20)
+        Text(panel,"Preview a style. You can change it anytime in Settings.",12,C.muted):SetPoint("TOPLEFT",22,-52)
+        UI.skinCards = {}
+        for i, definition in ipairs(Skins.list) do
+            local skin = definition
+            local card = CreateFrame("Button",nil,panel,"BackdropTemplate")
+            card:SetSize(232,188); card:SetPoint("TOPLEFT",22+(i-1)*247,-82)
+            card:EnableMouse(true); card:RegisterForClicks("LeftButtonUp")
+            card:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square")
+            Skins.Style(card,"panel",skin.id)
+            local title = card:CreateFontString(nil,"OVERLAY")
+            title:SetFont(STANDARD_TEXT_FONT,14,""); title:SetText(skin.name)
+            title:SetTextColor(unpack(skin.colors.gold)); title:SetPoint("TOPLEFT",12,-13)
+            local description = card:CreateFontString(nil,"OVERLAY")
+            description:SetFont(STANDARD_TEXT_FONT,12,""); description:SetText(skin.description)
+            description:SetTextColor(unpack(skin.colors.text)); description:SetJustifyH("LEFT")
+            description:SetWidth(205); description:SetWordWrap(true); description:SetPoint("TOPLEFT",12,-112)
+            local preview = card:CreateTexture(nil,"BACKGROUND")
+            preview:SetPoint("TOPLEFT",9,-40); preview:SetSize(214,61)
+            preview:SetTexture(skin.compact and skin.background or ART.."Satchel")
+            if not skin.compact then preview:SetTexCoord(0,1,0.2,0.8) end
+            for slot=1,4 do
+                local icon = card:CreateTexture(nil,"ARTWORK")
+                icon:SetSize(32,32); icon:SetPoint("TOPLEFT",16+(slot-1)*51,-55)
+                icon:SetTexture(({"Interface\\Icons\\INV_Misc_Herb_01","Interface\\Icons\\INV_Potion_51",
+                    "Interface\\Icons\\INV_Misc_Gem_Ruby_01","Interface\\Icons\\INV_Misc_Bag_08"})[slot])
+                if not skin.compact then
+                    local mask=card:CreateMaskTexture(nil,"ARTWORK")
+                    mask:SetTexture(ART.."CircleMask"); mask:SetAllPoints(icon); icon:AddMaskTexture(mask)
+                end
+            end
+            card:SetScript("OnClick",function()
+                UI.skinChoice = skin.id; UI.ApplySkin(skin.id)
+                for _, option in ipairs(Skins.list) do
+                    UI.skinCards[option.id]:SetBackdropBorderColor(unpack(option.id==skin.id and option.colors.gold or option.border))
+                end
+            end)
+            UI.skinCards[skin.id] = card
+        end
+        UI.skinUse = Button(panel,"Use selected skin",170,30,function()
+            UI.SelectSkin(UI.skinChoice); panel:Hide()
+        end)
+        UI.skinUse:SetPoint("BOTTOMRIGHT",-22,22)
+        UI.skinCancel = Button(panel,"Cancel",100,30,function() panel:Hide() end)
+        UI.skinCancel:SetPoint("BOTTOMLEFT",22,22)
+        local close = CreateFrame("Button",nil,panel,"UIPanelCloseButton")
+        close:SetPoint("TOPRIGHT",-4,-4); close:SetScript("OnClick",function() panel:Hide() end)
+        panel:Hide()
+        panel:SetScript("OnHide",function()
+            -- Dismissing the welcome picker keeps the original and completes
+            -- onboarding, so it does not interrupt every subsequent login.
+            if not Skins.Valid(Vault.db.settings.skin) then Vault.db.settings.skin="satchel" end
+            UI.ApplySkin(Vault.db.settings.skin)
+        end)
+    end
+    UI.skinChoice = Skins.Valid(Vault.db.settings.skin) and Vault.db.settings.skin or "satchel"
+    for _, skin in ipairs(Skins.list) do
+        UI.skinCards[skin.id]:SetBackdropBorderColor(unpack(skin.id==UI.skinChoice and skin.colors.gold or skin.border))
+    end
+    UI.skinFrame:Show()
+end
+
+function UI.FirstLogin()
+    if Skins.Valid(Vault.db.settings.skin) or InCombatLockdown and InCombatLockdown() then return end
+    if UI.skinFrame and UI.skinFrame:IsShown() then return end
+    UI.SkinPicker()
+end
+
 local helpText = [[GETTING STARTED
 Log into each character once to record bags and wallet gold. Open that character's bank and mailbox to record them. Offline records are snapshots, not live inventory. Saved times show their age. Log out normally or use /reload so WoW writes the data to disk.
 
@@ -261,7 +387,9 @@ ACCOUNT SYNC
 In Settings > Account sync, create a private code, enter it on the other account, then approve the request on the account that created the code. Both accounts need matching addon versions and must be reachable on the same ruleset and faction. Sharing is optional; messages are authenticated, not encrypted. Keep pairing codes private. Unlink removes imported records and preserves your own characters.
 
 SETTINGS AND DATA
-Settings controls scale, shortcuts, sound and effects. Clear saved records removes all local and imported character snapshots, gold, recipes and the cached shopping plan after confirmation. Preferences and pairing are kept; sync is paused. Later game events can record the current character again. Enable sync yourself to resume imports. Old records without a known ruleset need a fresh login before their supplies can be treated as transferable.
+Choose Original Satchel, Classic Blizzard or Minimal Dark on your first login or in Settings > Choose skin. Click a card to preview, then Use selected skin to save it for this account. Cancel restores your saved style; dismissing the first welcome keeps Original Satchel. Simple skins use compact square items without the bag animation. Skin changes keep your inventories, filters and other preferences.
+
+Settings also controls scale, shortcuts, sound and effects. Clear saved records removes all local and imported character snapshots, gold, recipes and the cached shopping plan after confirmation. Preferences and pairing are kept; sync is paused. Later game events can record the current character again. Enable sync yourself to resume imports. Old records without a known ruleset need a fresh login before their supplies can be treated as transferable.
 
 COMMANDS
 /wvf opens or closes the vault; /wvf scan refreshes accessible records; /wvf settings opens Settings; /wvf sync opens account sync; /wvf crafting opens saved recipes in an open profession window; /wvf minimap and /wvf actionbar toggle shortcuts; /wvf sound and /wvf effects toggle sound and motion; /wvf resetui resets position and scale; /wvf help opens this guide.
@@ -382,14 +510,18 @@ function UI.Create()
     art:SetAllPoints()
     art:SetTexture(ART .. "Header")
     art:SetTexCoord(0, 1, 0.287, 0.713)
+    UI.headerArt = art
     local icon = header:CreateTexture(nil, "ARTWORK")
     icon:SetTexture(ART .. "Icon")
     icon:SetSize(72, 72)
     icon:SetPoint("LEFT", 18, 0)
+    UI.headerIcon = icon
     local title = Text(header, "Warband Vault", 29, C.gold)
     title:SetFont("Fonts\\FRIZQT__.TTF", 29, "")
     title:SetPoint("TOPLEFT", 106, -26)
-    Text(header, "Forever", 13, C.muted):SetPoint("TOPLEFT", 108, -65)
+    UI.headerTitle = title
+    UI.headerSubtitle = Text(header, "Forever", 13, C.muted)
+    UI.headerSubtitle:SetPoint("TOPLEFT", 108, -65)
     local close = CreateFrame("Button", "WarbandVaultForeverCloseButton", f, "UIPanelCloseButton")
     close:SetSize(36, 36)
     close:SetPoint("TOPRIGHT", -5, -5)
@@ -557,11 +689,12 @@ function UI.Create()
     Text(f, "Hover for details. Shift-click to link.", 11, C.muted, 270):SetPoint("BOTTOMLEFT", 182, 31)
     Button(f, "Refresh", 100, 30, function() Vault.Scanner.Refresh() end):SetPoint("BOTTOMRIGHT", -22, 22)
     f:Hide()
+    UI.ApplySkin()
 end
 
 function UI.ApplyPosition()
     local f = UI.frame
-    local fit = math.min(UIParent:GetWidth() / 1100, UIParent:GetHeight() / 800)
+    local fit = math.min(UIParent:GetWidth() / 1100, UIParent:GetHeight() / (f:GetHeight()+40))
     f:SetScale(math.min(Vault.db.settings.scale or 1, fit))
     local p = Vault.db.settings.position
     f:ClearAllPoints()
@@ -573,8 +706,9 @@ function UI.RenderGrid()
     local results = UI.results or {}
     for _, button in ipairs(UI.itemButtons) do button:Hide() end
     local first = math.floor(UI.itemsScroll:GetVerticalScroll() / CELL) * COLUMNS + 1
-    -- Six rows cover the viewport and the next scroll boundary.
-    for i = first, math.min(first + COLUMNS * 6 - 1, #results) do
+    -- Reuse only the viewport plus two rows across either slot size.
+    local rows = math.ceil(VIEW_HEIGHT / CELL) + 2
+    for i = first, math.min(first + COLUMNS * rows - 1, #results) do
         local result = results[i]
         local poolIndex = i - first + 1
         local button = UI.itemButtons[poolIndex]
@@ -595,6 +729,7 @@ function UI.RenderGrid()
             button.mask:SetTexture(ART .. "CircleMask", "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
             button.mask:SetAllPoints(button.icon)
             button.icon:AddMaskTexture(button.mask)
+            button.round = true
             button.rim = button:CreateTexture(nil, "OVERLAY")
             button.rim:SetTexture(ART .. "SlotRing")
             button.rim:SetAllPoints()
@@ -623,6 +758,7 @@ function UI.RenderGrid()
             UI.itemButtons[poolIndex] = button
         end
         button.result = result
+        SkinItem(button)
         button:ClearAllPoints()
         button:SetPoint("TOPLEFT", ((i - 1) % COLUMNS) * CELL, -math.floor((i - 1) / COLUMNS) * CELL)
         button.glow:Hide()
@@ -634,6 +770,7 @@ function UI.RenderGrid()
         button.count:SetText(result.item.count > 1 and result.item.count or "")
         local color = ITEM_QUALITY_COLORS[result.item.quality or 1]
         button.rim:SetVertexColor(color.r, color.g, color.b, 1)
+        button:SetBackdropBorderColor(color.r,color.g,color.b,1)
         button:Show()
     end
 end
@@ -722,7 +859,7 @@ function UI.Refresh()
         button.meta:SetText(character.level .. " " .. (character.className or character.class) .. "\n" .. Model.Ruleset(character))
         button.money:SetText(Model.Money(character.money))
         DrawPortrait(button.face, character)
-        button:SetBackdropColor(unpack(UI.selected == character.key and {0.38, 0.25, 0.14} or C.stone))
+        button:SetBackdropColor(unpack(UI.selected == character.key and C.selected or C.stone))
         button.selection:SetShown(UI.selected == character.key)
         button:Show()
     end
@@ -749,7 +886,7 @@ function UI.Refresh()
     end
     for key, button in pairs(UI.tabs) do
         button.label:SetTextColor(unpack(key == UI.source and C.gold or C.text))
-        button:SetBackdropColor(unpack(key == UI.source and {0.38, 0.25, 0.14} or C.stone))
+        button:SetBackdropColor(unpack(key == UI.source and C.selected or C.stone))
     end
     UI.RefreshItems()
 end
@@ -783,7 +920,7 @@ end
 
 function UI.Settings()
     if not UI.settingsFrame then
-        local panel = Panel(UIParent, 435, 525, nil, "WarbandVaultForeverSettings")
+        local panel = Panel(UIParent, 435, 590, nil, "WarbandVaultForeverSettings")
         UI.settingsFrame = panel
         panel:SetPoint("CENTER"); panel:SetFrameStrata("DIALOG"); panel:SetClampedToScreen(true)
         table.insert(UISpecialFrames, "WarbandVaultForeverSettings")
@@ -840,6 +977,10 @@ function UI.Settings()
         Button(panel, "Account sync", 150, 30, function() Vault.SyncUI.Open() end):SetPoint("TOPLEFT", 25, -414)
         UI.clearButton = Button(panel, "Clear saved records", 205, 30, UI.ConfirmClear)
         UI.clearButton:SetPoint("TOPRIGHT", -25, -414)
+        UI.skinLabel = Text(panel,"Skin: "..Skins.Current().name,12,C.text,240)
+        UI.skinLabel:SetPoint("TOPLEFT",25,-466)
+        UI.skinButton = Button(panel,"Choose skin",120,30,UI.SkinPicker)
+        UI.skinButton:SetPoint("TOPRIGHT",-25,-454)
         Button(panel, "Reset window", 124, 30, function()
             Vault.db.settings.position = nil; Vault.db.settings.scale = 1
             if UI.frame then UI.ApplyPosition() end

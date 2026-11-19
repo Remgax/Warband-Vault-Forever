@@ -1,5 +1,22 @@
 # Visual direction (alpha 2)
 
+## Selectable skins (beta.4)
+
+Original Satchel retains the illustrated layout below. Classic Blizzard uses
+the client's dialogue background and border with gold headings. Minimal Dark
+uses a flat charcoal background and a thin border. Both simpler skins use a
+50-pixel title header, a 1060 x 660 window and sixteen columns of square item
+slots at a 44-pixel pitch. Item quality borders and stack counts stay visible.
+They omit satchel artwork and its opening animation. Shared panels inherit the
+active skin, including panels opened after selection.
+
+An account-wide first-login picker offers preview cards, confirmation and
+cancellation. The same picker is reachable from Settings. Dismissing the first
+prompt keeps the original; cancelling a later preview restores the saved skin.
+Inventory records, filters and non-skin preferences are independent of styling.
+
+## Original Satchel
+
 The inventory sits inside an illustrated open leather satchel. Brass clasps,
 stitched hide, carved borders, and inset item pockets give it the feel of an
 object in the game. Keep the portrait roster visible beside the bag.

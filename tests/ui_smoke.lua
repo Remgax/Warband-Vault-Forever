@@ -12,6 +12,10 @@ for _, name in ipairs({"SetBackdrop", "SetBackdropColor", "SetBackdropBorderColo
 function methods:SetPoint(...) self.point={...} end
 function methods:GetPoint() return unpack(rawget(self,"point") or {}) end
 function methods:SetTexture(value) self.texture=value end
+function methods:SetBackdrop(value) self.backdrop=value end
+function methods:SetBackdropBorderColor(...) self.borderColor={...} end
+function methods:AddMaskTexture(mask) self.appliedMask=mask end
+function methods:RemoveMaskTexture(mask) assert(self.appliedMask==mask); self.appliedMask=nil end
 function methods:SetEnabled(value) self.enabled=value end
 function methods:GetStringHeight() return 500 end
 function methods:SetScript(event, fn) self.scripts[event] = fn end
@@ -95,6 +99,7 @@ C_Sound={PlaySoundWithOptions=function(params)
 end}
 assert(loadfile(root .. "/WarbandVaultForever/Crafting.lua"))("WarbandVaultForever", Vault)
 assert(loadfile(root .. "/WarbandVaultForever/Shopping.lua"))("WarbandVaultForever", Vault)
+assert(loadfile(root .. "/WarbandVaultForever/Skins.lua"))("WarbandVaultForever", Vault)
 assert(loadfile(root .. "/WarbandVaultForever/UI.lua"))("WarbandVaultForever", Vault)
 assert(loadfile(root .. "/WarbandVaultForever/CraftingUI.lua"))("WarbandVaultForever", Vault)
 local UI=Vault.UI
@@ -305,6 +310,73 @@ assert(UI.infoFrame:IsShown() and UI.infoTitle.text=="Help" and UI.infoText.text
 UI.creditsButton.scripts.OnClick()
 assert(UI.infoTitle.text=="Credits" and UI.infoText.text:find("Egor Skriptunoff",1,true),
     "Credits identifies the addon author and upstream crypto library")
+
+-- Skin selection is account-wide and cosmetic: preserve all records and filters.
+local skinRecords=Vault.db.characters
+local skinBags=skinRecords["1:one"].snapshots.bags.items
+local savedScale=Vault.db.settings.scale
+Vault.db.settings.skin=nil
+InCombatLockdown=function() return true end
+UI.FirstLogin()
+assert(UI.skinFrame==nil, "Welcome picker waits until the player is outside combat")
+InCombatLockdown=previousCombat
+UI.FirstLogin()
+assert(UI.skinFrame:IsShown() and Vault.db.settings.skin==nil and UI.skinChoice=="satchel",
+    "First login offers all skins without prematurely saving a selection")
+UI.skinCards.classic.scripts.OnClick()
+assert(UI.skinChoice=="classic" and Vault.db.settings.skin==nil, "Skin cards preview without saving")
+UI.FirstLogin()
+assert(UI.skinChoice=="classic", "Repeated world/login checks never reset an open preview")
+UI.skinUse.scripts.OnClick()
+assert(Vault.db.settings.skin=="classic" and not UI.skinFrame:IsShown(), "Confirm saves the selected skin")
+UI.FirstLogin()
+assert(not UI.skinFrame:IsShown(), "Saved skin prevents the welcome picker on later logins")
+UI.frame:Show(); UI.selected="1:one"; UI.source="bags"; UI.query=""; UI.Refresh()
+assert(UI.frame:GetHeight()==660 and not UI.headerArt:IsShown() and not UI.satchel:IsShown(),
+    "Classic uses a compact header and removes illustrated bag decorations")
+assert(UI.itemButtons[1]:GetWidth()==38 and rawget(UI.itemButtons[1].icon,"appliedMask")==nil
+    and not UI.itemButtons[1].rim:IsShown(), "Classic uses square item icons with no round mask or ring")
+assert(UI.itemButtons[1].backdrop.edgeSize==1, "Square slots keep a quality-colored border")
+assert(UI.settingsFrame.backdrop.bgFile=="Interface\\DialogFrame\\UI-DialogBox-Background",
+    "Existing Settings panels adopt Blizzard's dialogue texture")
+UI.skinButton.scripts.OnClick()
+UI.skinCards.minimal.scripts.OnClick()
+UI.skinCancel.scripts.OnClick()
+assert(Vault.db.settings.skin=="classic" and Vault.Skins.Current().id=="classic",
+    "Cancel restores the previously saved skin after previewing another")
+assert(UI.SelectSkin("minimal"))
+assert(UI.settingsFrame.backdrop.bgFile=="Interface\\Buttons\\WHITE8X8"
+    and UI.settingsFrame.backdrop.edgeSize==1, "Minimal applies plain backgrounds and thin borders")
+assert(UI.skinLabel.text=="Skin: Minimal Dark", "Settings shows the active skin")
+assert(#UI.itemButtons<=128 and UI.itemButtons[16].point[2]==660,
+    "Compact grid uses sixteen columns and a bounded reusable button pool")
+UI.itemsScroll:SetVerticalScroll(88); UI.RenderGrid()
+assert(UI.itemButtons[1].result==UI.results[33], "Compact scrolling maps to the correct saved item")
+local lazyPanel=UI.widgets.Panel(UIParent,100,100)
+assert(lazyPanel.backdrop.edgeSize==1, "Panels created after selection inherit the active skin")
+assert(Vault.db.characters==skinRecords and skinRecords["1:one"].snapshots.bags.items==skinBags
+    and Vault.db.settings.scale==savedScale and UI.selected=="1:one" and UI.source=="bags",
+    "Switching skins preserves inventory, character selection, source and user scale")
+local oldEffects,oldStrength=Vault.db.settings.effects,Vault.db.settings.effectStrength
+Vault.db.settings.effects=true; Vault.db.settings.effectStrength=0.7
+UI.OpenEffect()
+assert(UI.frame.scripts.OnUpdate==nil, "Simple skins never run the illustrated bag animation")
+assert(UI.SelectSkin("satchel"))
+assert(UI.frame:GetHeight()==760 and UI.headerArt:IsShown() and UI.satchel:IsShown()
+    and UI.itemButtons[1]:GetWidth()==48 and UI.itemButtons[1].rim:IsShown()
+    and UI.itemButtons[1].icon.appliedMask==UI.itemButtons[1].mask,
+    "Switching back restores original artwork, geometry, circular items and borders")
+assert(lazyPanel.backdrop.bgFile:find("Leather",1,true), "Already-created panels can return to the original skin")
+UI.OpenEffect(); assert(UI.frame.scripts.OnUpdate, "Original skin retains its opening animation")
+UI.StopEffects(); Vault.db.settings.effects=oldEffects; Vault.db.settings.effectStrength=oldStrength
+assert(not UI.SelectSkin("invalid") and Vault.db.settings.skin=="satchel", "Invalid skin IDs cannot overwrite the saved choice")
+Vault.db.settings.skin="removed-skin"; UI.ApplySkin(); UI.FirstLogin()
+assert(UI.skinFrame:IsShown() and Vault.Skins.Current().id=="satchel", "Unknown saved skins fall back safely and offer selection")
+UI.skinFrame:Hide()
+assert(Vault.db.settings.skin=="satchel", "Escape/close keeps the original and completes the welcome prompt")
+UI.FirstLogin(); assert(not UI.skinFrame:IsShown())
+print("PASS: skin previews, first-login/combat handling, persistent selection, square grids, cancellation and original restoration")
+
 local clearCalls=0
 Vault.ClearRecords=function() clearCalls=clearCalls+1; Vault.Model.ClearRecords(Vault.db); UI.RecordsCleared() end
 local records=Vault.db.characters
@@ -317,6 +389,7 @@ assert(not UI.clearFrame:IsShown() and clearCalls==0 and Vault.db.characters==re
 UI.clearButton.scripts.OnClick(); UI.clearAccept.scripts.OnClick()
 assert(clearCalls==1 and next(Vault.db.characters)==nil and not UI.clearFrame:IsShown(),
     "Confirm invokes record clearing exactly once")
+assert(Vault.db.settings.skin=="satchel", "Clearing records preserves the account's skin preference")
 assert(Vault.CraftingUI.currentResult==nil and Vault.ProfessionWindow.result==nil,
     "Clearing also removes stale profession selections")
 print("PASS: storage-only tabs, Help/Credits and cancellable record clearing")

@@ -14,6 +14,8 @@ Vault.UI.ActionBar=counted("actionbar")
 Vault.UI.StopEffects=counted("stopEffects")
 Vault.UI.RefreshSettings=counted("settings")
 Vault.UI.Help=counted("help")
+Vault.UI.ApplySkin=counted("skin")
+Vault.UI.FirstLogin=counted("skinPrompt")
 CreateFrame=function()
     local f={events={}}
     function f:RegisterEvent(event) self.events[event]=true end
@@ -39,6 +41,7 @@ assert(Vault.db == WarbandVaultForeverDB and calls.minimap==1, "SavedVariables i
 event("PLAYER_LOGIN")
 flush()
 assert(calls.refresh==1, "Login scans asynchronously")
+assert(calls.skin==1 and calls.skinPrompt==1, "Saved skin applies at initialization and the welcome check runs after login")
 event("BAG_UPDATE_DELAYED"); event("BAG_UPDATE_DELAYED"); event("PLAYER_EQUIPMENT_CHANGED")
 flush()
 assert(calls.refresh==2, "Burst updates debounce into one complete refresh")

@@ -5,7 +5,7 @@ local frame = CreateFrame("Frame")
 local pending, pendingItems = false, false
 local loggingOut = false
 local scanGeneration = 0
-Vault.version = "0.3.0-beta.3"
+Vault.version = "0.3.0-beta.4"
 
 local function Print(message)
     DEFAULT_CHAT_FRAME:AddMessage("|cffffd36bWarband Vault:|r " .. message)
@@ -61,6 +61,7 @@ local function Initialize()
     local db, err = Vault.Model.Open(WarbandVaultForeverDB)
     if not db then Print(err); return end
     WarbandVaultForeverDB, Vault.db = db, db
+    Vault.UI.ApplySkin()
     SLASH_WARBANDVAULTFOREVER1 = "/wvf"
     SLASH_WARBANDVAULTFOREVER2 = "/warbandvault"
     SlashCmdList.WARBANDVAULTFOREVER = Slash
@@ -147,9 +148,12 @@ frame:SetScript("OnEvent", function(_, event, ...)
     elseif event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" then
         Vault.UI.ActionBar()
         local generation = scanGeneration
-        C_Timer.After(1, function() if generation == scanGeneration then Queue() end end)
+        C_Timer.After(1, function()
+            if generation == scanGeneration then Queue(); Vault.UI.FirstLogin() end
+        end)
     elseif event == "PLAYER_REGEN_ENABLED" then
         Vault.UI.ActionBar()
+        Vault.UI.FirstLogin()
         if Vault.ProfessionWindow then Vault.ProfessionWindow.Attach() end
     else
         Queue()
