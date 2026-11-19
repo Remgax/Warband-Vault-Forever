@@ -5,7 +5,7 @@ local frame = CreateFrame("Frame")
 local pending, pendingItems = false, false
 local loggingOut = false
 local scanGeneration = 0
-Vault.version = "0.3.0-beta.2"
+Vault.version = "0.3.0-beta.3"
 
 local function Print(message)
     DEFAULT_CHAT_FRAME:AddMessage("|cffffd36bWarband Vault:|r " .. message)

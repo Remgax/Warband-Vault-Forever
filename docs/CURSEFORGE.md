@@ -4,14 +4,14 @@
 
 - **Project name:** Warband Vault Forever
 - **Repository / in-game title:** Warband Vault Forever
-- **Summary:** Browse saved inventories, banks, equipment, and gold across your characters in one searchable vault, with profession materials and optional account sync.
+- **Summary:** Browse saved inventories, banks, and gold across your characters in one searchable vault, with profession materials and optional account sync.
 - **Logo:** `docs/images/curseforge-logo.png` (400 x 400 PNG).
 - **Main category:** Bags & Inventory.
 - **In-game AddOns category:** Inventory.
 - **Source URL:** https://github.com/Remgax/Warband-Vault-Forever
 - **Issues URL:** https://github.com/Remgax/Warband-Vault-Forever/issues
 - **License:** GNU General Public License version 3 (GPLv3)
-- **Current file release type:** Beta (0.3.0-beta.2)
+- **Current file release type:** Beta (0.3.0-beta.3)
 - **Game version:** Select the Forever 1.60.1 option matching the installed client.
 
 Use Bags & Inventory as the main category.
@@ -30,7 +30,7 @@ as Beta on CurseForge automatically.
 ## Publishing and automation
 
 Upload the installable `WarbandVaultForever-<version>.zip` from GitHub Releases,
-not GitHub's generic source-code ZIP. Set the file type to Beta for 0.3.0-beta.2. GitHub release publication is automated for new versions pushed to main
+not GitHub's generic source-code ZIP. Set the file type to Beta for 0.3.0-beta.3. GitHub release publication is automated for new versions pushed to main
 and for explicit `v*` tags. An optional CurseForge upload job uses that same tested
 ZIP after a new GitHub release. Keep CurseForge's own automatic packaging set to
 **No automatic packaging** when using this workflow.

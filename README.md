@@ -8,7 +8,7 @@
 Browse your characters' saved bags, banks, mail, and gold in
 **World of Warcraft: Forever** (Interface **16001**).
 
-**Current beta: 0.3.0-beta.2.** Inventory tracking, account sync, and the new
+**Current beta: 0.3.0-beta.3.** Inventory tracking, account sync, and the new
 profession-window tools are available for testing. Report problems through
 [GitHub Issues](https://github.com/Remgax/Warband-Vault-Forever/issues).
 

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.3.0-beta.3] - 2026-11-19
+
 - Preserve the last live bags and wallet at logout; cancel queued scans during logout and retain bags when their capacity is unavailable (#1).
 - Keep Forever's first name and surname together. Store the separate server/ruleset label from GetRealmName and use it for filters, transfer checks and synced metadata instead of the surname (#3).
 - Preserve older records and update identity metadata when their owner logs in. Unknown rulesets do not count as transferable supplies until rescanned.
