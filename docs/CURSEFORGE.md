@@ -11,8 +11,8 @@
 - **Source URL:** https://github.com/Remgax/Warband-Vault-Forever
 - **Issues URL:** https://github.com/Remgax/Warband-Vault-Forever/issues
 - **License:** GNU General Public License version 3 (GPLv3)
-- **Current file release type:** Beta (0.3.0-beta.5)
-- **Game version:** Select the Forever 1.60.1 option matching the installed client.
+- **File release type:** Choose the appropriate type for each release; the upload workflow derives it from the release version.
+- **Game version:** Select the Forever option matching the supported client.
 
 Use Bags & Inventory as the main category.
 
@@ -20,17 +20,25 @@ Use Bags & Inventory as the main category.
 
 Use [the formatted description](curseforge-description.html). Open it in a browser
 and choose **Copy formatted description**, then paste into CurseForge's WYSIWYG
-editor. This is the canonical listing text, including beta status, inventory,
-profession-window tools, Auctionator shopping, sync setup, and limitations.
+editor. This is the canonical, evergreen listing text: a general overview of
+inventory tracking, crafting plans, customization, optional integrations, and
+how saved records work.
 
-The first beta is **0.3.0-beta.1**. Select **Beta** for its CurseForge file release
-type. GitHub marks beta versions as prereleases; the upload workflow marks them
-as Beta on CurseForge automatically.
+Keep release numbers, dates, alpha/beta announcements, test-progress reports,
+fixed skin counts/names, and exact control layouts out of the project description.
+Put release-specific details in file metadata and changelogs instead. Use stable
+Files, Releases, guide, and issue-tracker links rather than version-pinned URLs.
+Normal version bumps do not require editing the description.
+
+Project descriptions are edited separately in CurseForge's project settings.
+The release upload workflow updates files and their changelogs; it does not
+replace the project's description.
 
 ## Publishing and automation
 
 Upload the installable `WarbandVaultForever-<version>.zip` from GitHub Releases,
-not GitHub's generic source-code ZIP. Set the file type to Beta for 0.3.0-beta.5. GitHub release publication is automated for new versions pushed to main
+not GitHub's generic source-code ZIP. Set the appropriate release type for that file.
+GitHub release publication is automated for new versions pushed to main
 and for explicit `v*` tags. An optional CurseForge upload job uses that same tested
 ZIP after a new GitHub release. Keep CurseForge's own automatic packaging set to
 **No automatic packaging** when using this workflow.

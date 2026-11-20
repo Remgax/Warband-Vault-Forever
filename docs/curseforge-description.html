@@ -30,94 +30,60 @@
   <main>
     <article id="description" tabindex="0" aria-label="CurseForge project description">
       <h1>Warband Vault Forever</h1>
-      <p>Browse your characters' saved bags, banks, mail, and gold in World of Warcraft: Forever.
-      Search for an item to see who owns it without switching characters.</p>
-      <p><strong>Current beta: 0.3.0-beta.5.</strong> Track your characters' items and plan crafts from the profession window.
-      <a href="https://github.com/Remgax/Warband-Vault-Forever/releases/tag/v0.3.0-beta.5">Download the beta</a>
-      and report problems through the GitHub issue tracker.</p>
-      <h2>Features</h2>
+      <p>Keep track of your characters' items and gold in World of Warcraft: Forever.
+      Browse saved inventories, find supplies on your alts, and plan crafting without switching characters.</p>
+
+      <h2>Your characters, one searchable vault</h2>
       <ul>
-        <li>A character list with class colors, levels, rulesets, and gold.</li>
-        <li>Separate views for bags, character banks and mailbox attachments.</li>
-        <li>Search by item name, item ID, character, ruleset, or item type. Filter by item quality.</li>
-        <li>Item tooltips with owner counts and saved times.</li>
-        <li>Character search with class, profession, ruleset, faction, and level filters.</li>
-        <li>Warband recipes in the profession window: saved character recipes, search, profession filters, bag availability, and quantity planning.</li>
-        <li>A collapsible materials panel beside native recipes, with bags, banks, alt holdings, saved times, and transfer restrictions.</li>
-        <li>Missing-material checks show which alts hold supplies and where they are stored.</li>
-        <li>Craft with the game's own Create and Create All controls. Build a materials list showing what to collect and what is still missing.</li>
-        <li>Auctionator shopping lists for remaining auction-house purchases, with rough costs from cached unit prices and clear price coverage.</li>
-        <li>An open leather satchel with stitched edges, brass fittings, and item hover glow.</li>
-        <li>Keep Original Satchel or choose Classic Blizzard or Minimal Dark for simpler panels and compact square item slots. Choose on first login or anytime in Settings; preview, confirm or cancel without a reload.</li>
-        <li>A short opening animation and WoW's backpack-opening sound, with separate controls to turn them off.</li>
-        <li>A separate Settings menu with sliders for window scale, opening-sound volume, and effects.</li>
-        <li>A vault button beside the action-bar bags and a draggable minimap shortcut.</li>
-        <li>Optional account-level sync: pair two accounts once and share their recorded characters, inventories, banks, and gold.</li>
+        <li>Browse recorded bags, banks, and mail across your characters.</li>
+        <li>Search for items and see which characters own them and where they are stored.</li>
+        <li>Use character and item filters to narrow down what you need.</li>
+        <li>See recorded gold balances and when inventory information was last updated.</li>
       </ul>
+
+      <h2>Plan crafts and gather materials</h2>
+      <p>Browse saved recipes and compare their material requirements with supplies recorded on your characters.
+      See what you already have, what needs collecting from storage or alts, and what is still missing.</p>
+      <p>Craft through the game's own profession controls. Optional Auctionator integration helps turn missing
+      materials into shopping lists and provides estimates from available cached prices.</p>
+
+      <h2>Make it your own</h2>
+      <p>Choose an illustrated or simpler interface style, adjust the window scale, and customize shortcuts,
+      sound, and visual effects in Settings.</p>
+
+      <h2>Optional account sharing</h2>
+      <p>Pair compatible addon installations to exchange recorded characters between accounts through in-game
+      addon messages. Pairing lets you browse shared records alongside your own characters.</p>
+      <p>Keep pairing codes private. Sync does not require your WoW password or an external cloud account.
+      Messages are authenticated but are not encrypted. Communication and material transfers remain subject
+      to the game's rules and account reachability.</p>
+
       <h2>Getting started</h2>
       <ol>
-        <li>Install and enable Warband Vault Forever.</li>
-        <li>Restart WoW after the first installation.</li>
-        <li>Log into each character you want to record.</li>
-        <li>Open each character’s bank and mailbox to save those contents.</li>
-        <li>Open their professions to save recipes. Expand categories and clear profession filters to record more recipes on legacy windows.</li>
-        <li>Type <strong>/wvf</strong> or click the vault beside the action-bar bags or minimap.</li>
+        <li>Install and enable Warband Vault Forever, then restart the game after the first installation.</li>
+        <li>Type <strong>/wvf</strong> or use an addon shortcut to open the vault.</li>
+        <li>Log into each character you want to record. Visit their bank and mailbox to record those contents.</li>
+        <li>Open their professions to save recipe information for crafting plans.</li>
       </ol>
-      <h2>How tracking works</h2>
-      <p>The addon records each character while you play them. Those saved records remain available when you switch to
-      another character on the same local WoW account.</p>
-      <p>Bank and mailbox records update when their owner opens those locations. Saved times show how recently each
-      location was recorded. Characters you have not logged into with the addon enabled will not appear yet.</p>
-      <p>Gold totals include character wallets; mailbox gold is displayed separately.</p>
-      <h2>Crafting and auction-house shopping</h2>
-      <p>Open a profession from your spellbook. The <strong>Warband materials</strong> panel beside the native
-      recipe view shows bags, bank and alt holdings, record ages, supplies to collect and quantities still missing.
-      It follows the native recipe and quantity. Craft with the game's own <strong>Create</strong> and <strong>Create All</strong> controls.</p>
-      <p>The <strong>Warband recipes</strong> side tab lets you browse saved characters and professions, search recipes,
-      filter by bag availability and plan a quantity. <strong>Show recipe</strong> returns a current-character recipe
-      to the native page; open its profession first. Other characters' recipes remain available for planning.
-      The profession tools work with only Warband Vault Forever enabled. ForeverCore is optional and its shared tab layout is used when available.</p>
-      <p><strong>Materials and shopping</strong> shows what to collect and buy. Use <strong>Create Auctionator list</strong>
-      there to export missing purchases, then visit an auctioneer to buy them. Cost estimates use cached prices;
-      unknown prices are excluded and partial totals are labelled.</p>
-      <h2>Link another account</h2>
-      <ol>
-        <li>Install this version on both accounts and log into both on the same ruleset and faction.</li>
-        <li>On the first account, open <strong>Settings → Account sync → Create / show code</strong>.</li>
-        <li>Copy the code privately to the other account. Paste it into Account sync and click <strong>Pair account</strong>.</li>
-        <li>On the first account, choose <strong>Approve account</strong>.</li>
-      </ol>
-      <p>Pairing applies to the whole account. Switching characters needs no new pairing. Both accounts exchange their
-      own saved characters while online; offline records remain available with their original saved times. Bank
-      contents update when their owner visits a banker. Large transfers may take time.</p>
-      <p>Sync Settings includes automatic updates, Sync now, profession and mailbox sharing, and Unlink.
-      Unlink removes the pairing and imported records on that account. Already received records remain when a sharing
-      option is turned off. One other account can be paired at a time.</p>
-      <p>Keep the pairing code private. Sync uses authenticated WoW addon messages and does not use your WoW password
-      or a cloud service. Messages are not encrypted. Cross-ruleset and cross-faction discovery are not supported.
-      Account sync passes simulated transfer and alt-switch tests; broader in-game reconnect testing continues during beta.</p>
-      <h2>Commands</h2>
-      <ul>
-        <li><strong>/wvf</strong>: open or close the vault.</li>
-        <li><strong>/wvf scan</strong>: save accessible items.</li>
-        <li><strong>/wvf settings</strong>: open settings.</li>
-        <li><strong>/wvf sync</strong>: open account pairing and sync settings.</li>
-        <li><strong>/wvf crafting</strong>: open Warband recipes in an already open profession window.</li>
-        <li><strong>/wvf minimap</strong>: show or hide the minimap shortcut.</li>
-        <li><strong>/wvf actionbar</strong>: show or hide the button beside the bags.</li>
-        <li><strong>/wvf sound</strong>: turn the opening sound on or off.</li>
-        <li><strong>/wvf effects</strong>: turn animation and hover glow on or off.</li>
-        <li><strong>/wvf resetui</strong>: reset the window's position and scale.</li>
-      </ul>
-      <h2>Beta notes</h2>
-      <p>Updating from alpha keeps your saved characters and settings. Install the beta over the existing addon folder
-      and use <strong>/reload</strong>. Use the same addon version on both accounts for sync.</p>
-      <p>The profession layout, recipe browsing, material display, and return to native recipes have been checked in-game.
-      Full crafting batches, Auctionator shopping, and two-account reconnects still need broader beta testing.</p>
-      <p>Shared account banks, guild banks, auctions, and currencies are not tracked.</p>
-      <p>For bug reports, include the addon version, client build, reproduction steps, and any Lua error. Keep pairing codes and account SavedVariables private.</p>
-      <p>Found a problem or have a suggestion? Visit our
+      <p>Use <strong>/wvf settings</strong> to customize the addon and <strong>/wvf help</strong> for in-game guidance.</p>
+
+      <h2>About saved records</h2>
+      <p>The vault shows recorded information, not a live view of offline characters. Bank and mailbox records
+      refresh when their owner visits those locations. Check saved times and update older records before
+      relying on material counts or making purchases.</p>
+      <p>Transfer restrictions affect which supplies can be used. Auction-house estimates depend on cached
+      prices and may be incomplete or out of date. The addon does not automatically move items or buy auctions.</p>
+
+      <h2>Downloads, help, and feedback</h2>
+      <p>Find downloads and release notes on the
+      <a href="https://www.curseforge.com/wow/addons/warband-vault-forever/files">CurseForge Files page</a>
+      or <a href="https://github.com/Remgax/Warband-Vault-Forever/releases">GitHub Releases</a>.</p>
+      <p>For detailed instructions, see the
+      <a href="https://github.com/Remgax/Warband-Vault-Forever#readme">project guide</a>.
+      Report problems or suggest improvements through the
       <a href="https://github.com/Remgax/Warband-Vault-Forever/issues">GitHub issue tracker</a>.</p>
+      <p>When reporting a problem, include your addon version, client build, steps to reproduce it, and any Lua error.
+      Keep pairing codes and private saved account data out of public reports.</p>
     </article>
   </main>
   <script>
